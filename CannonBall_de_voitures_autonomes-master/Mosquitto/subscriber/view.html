@@ -1,0 +1,207 @@
+<html>
+<head>
+    <title>Real-time metrics through MQTT</title>
+    <script type="text/javascript" src="Chart.min.js"></script>
+    <script type="text/javascript" src="socket.io.js"></script>
+    <link href="bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <table class="table">
+            <tr>
+                <td>Mode</td>
+                <td></td>
+                <td id="mode_value" class="text-info">Unknown</td>
+            </tr>
+            <tr>
+                <td style="vertical-align: middle">Steering</td>
+                <td><canvas id="chart_steering_div" width="600" height="100"></canvas></td>
+                <td id="steering_value" style="vertical-align: middle" class="text-info">0</td>
+            </tr>
+            <tr>
+                <td style="vertical-align: middle">Throttle</td>
+                <td><canvas id="chart_throttle_div" width="600" height="100"></canvas></td>
+                <td id="throttle_value" style="vertical-align: middle" class="text-info">0</td>
+            </tr>
+            <tr>
+                <td style="vertical-align: middle">FPS</td>
+                <td><canvas id="chart_fps_div" width="600" height="100"></canvas></td>
+                <td id="fps_value" style="vertical-align: middle" class="text-info">0</td>
+            </tr>
+            <tr>
+                <td style="vertical-align: middle">Accelerometer X/Y/Z</td>
+                <td>
+                    <canvas id="chart_acc_x_div" width="200" height="100"></canvas>
+                    <canvas id="chart_acc_y_div" width="200" height="100"></canvas>
+                    <canvas id="chart_acc_z_div" width="200" height="100"></canvas>
+                </td>
+                <td id="acc_value" style="vertical-align: middle" class="text-info">0</td>
+            </tr>
+            <tr>
+                <td style="vertical-align: middle">Number of markers detected</td>
+                <td><canvas id="chart_nb_markers_div" width="600" height="100"></canvas></td>
+                <td id="nb_markers_value" style="vertical-align: middle" class="text-info">0</td>
+            </tr>
+            <tr>
+                <td style="vertical-align: middle">Distance to the closest marker</td>
+                <td><canvas id="chart_closest_div" width="600" height="100"></canvas></td>
+                <td id="closest_value" style="vertical-align: middle" class="text-info">0</td>
+            </tr>
+        </table>
+    </div>
+    <script>
+        var socket = io('http://localhost:1337');
+
+        function getMinOfArray(numArray) {
+            return Math.min.apply(null, numArray);
+        }
+
+        function getMaxOfArray(numArray) {
+                return Math.max.apply(null, numArray);
+        }
+
+        function deleteOldValues(labels, data, limit) {
+            if (data.length > limit) {
+                labels.shift();
+                data.shift();
+            }
+        }
+
+        function displayChart(context, labels, data, minEqMax, max) {
+                var options;
+                if (minEqMax) {
+                    options = {
+                        scaleOverride: true,
+                        scaleSteps: 3,
+                        scaleStepWidth: 1,
+                        scaleStartValue: max - 2,
+                        datasetFill: false,
+                        animation: false
+                    };
+                } else {
+                    options = {
+                        datasetFill: false,
+                        animation: false
+                    };
+                }
+                new Chart(context).Line({
+                        labels: labels,
+                        datasets: [{
+                                     data: data
+                              }]
+                    }, options);
+        }
+
+        <!-- Mode -->
+        socket.on('Mode', function(data) {
+                document.getElementById('mode_value').innerHTML = data.value;
+         });
+
+        <!-- Steering -->
+        var ctxSteering = document.getElementById('chart_steering_div').getContext('2d');
+        var arrayLabelsSteering = new Array();
+        var arrayDataSteering = new Array();
+        socket.on('Steering', function(data) {
+                document.getElementById('steering_value').innerHTML = data.value;
+                arrayLabelsSteering.push(data.time);
+                arrayDataSteering.push(data.value);
+                var min = getMinOfArray(arrayDataSteering);
+                var max = getMaxOfArray(arrayDataSteering);
+                deleteOldValues(arrayLabelsSteering, arrayDataSteering, 20);
+                displayChart(ctxSteering, arrayLabelsSteering, arrayDataSteering,
+                    min==max, max);
+        });
+
+        <!-- Throttle -->
+        var ctxThrottle = document.getElementById('chart_throttle_div').getContext('2d');
+        var arrayLabelsThrottle = new Array();
+        var arrayDataThrottle = new Array();
+        socket.on('Throttle', function(data) {
+                document.getElementById('throttle_value').innerHTML = data.value;
+                arrayLabelsThrottle.push(data.time);
+                arrayDataThrottle.push(data.value);
+                var min = getMinOfArray(arrayDataThrottle);
+                var max = getMaxOfArray(arrayDataThrottle);
+                deleteOldValues(arrayLabelsThrottle, arrayDataThrottle, 20);
+                displayChart(ctxThrottle, arrayLabelsThrottle, arrayDataThrottle,
+                    min==max, max);
+        });
+
+        <!-- FPS -->
+        var ctxFPS = document.getElementById('chart_fps_div').getContext('2d');
+        var arrayLabelsFPS = new Array();
+        var arrayDataFPS = new Array();
+        socket.on('FPS', function(data) {
+                document.getElementById('fps_value').innerHTML = data.value.toFixed(2);
+                arrayLabelsFPS.push(data.time);
+                arrayDataFPS.push(data.value);
+                var min = getMinOfArray(arrayDataFPS);
+                var max = getMaxOfArray(arrayDataFPS);
+                deleteOldValues(arrayLabelsFPS, arrayDataFPS, 20);
+                displayChart(ctxFPS, arrayLabelsFPS, arrayDataFPS,
+                    min==max, max);
+        });
+
+        <!-- Accelerometer -->
+        var ctxAccX = document.getElementById('chart_acc_x_div').getContext('2d');
+        var ctxAccY = document.getElementById('chart_acc_y_div').getContext('2d');
+        var ctxAccZ = document.getElementById('chart_acc_z_div').getContext('2d');
+        var arrayLabelsAcc = new Array();
+        var arrayDataAccX = new Array();
+        var arrayDataAccY = new Array();
+        var arrayDataAccZ = new Array();
+        socket.on('Accelerometer', function(data) {
+                document.getElementById('acc_value').innerHTML = "x : " + data.x + " - y: " + data.y + " - z: " + data.z;
+                arrayLabelsAcc.push(data.time);
+                arrayDataAccX.push(data.x);
+                arrayDataAccY.push(data.y);
+                arrayDataAccZ.push(data.z);
+                var minX = getMinOfArray(arrayDataAccX);
+                var maxX = getMaxOfArray(arrayDataAccX);
+                var minY = getMinOfArray(arrayDataAccY);
+                var maxY = getMaxOfArray(arrayDataAccY);
+                var minZ = getMinOfArray(arrayDataAccZ);
+                var maxZ = getMaxOfArray(arrayDataAccZ);
+                deleteOldValues(arrayLabelsAcc, arrayDataAccX, 8);
+                deleteOldValues(arrayDataAccY, arrayDataAccZ, 8);
+                displayChart(ctxAccX, arrayLabelsAcc, arrayDataAccX,
+                    minX==maxX, maxX);
+                displayChart(ctxAccY, arrayLabelsAcc, arrayDataAccY,
+                    minY==maxY, maxY);
+                displayChart(ctxAccZ, arrayLabelsAcc, arrayDataAccZ,
+                    minZ==maxZ, maxZ);
+        });
+
+        <!-- Nb Marker -->
+        var ctxNbMarkers = document.getElementById('chart_nb_markers_div').getContext('2d');
+        var arrayLabelsNbMarkers = new Array();
+        var arrayDataNbMarkers = new Array();
+        socket.on('NbMarkers', function(data) {
+                document.getElementById('nb_markers_value').innerHTML = data.value;
+                arrayLabelsNbMarkers.push(data.time);
+                arrayDataNbMarkers.push(data.value);
+                var min = getMinOfArray(arrayDataNbMarkers);
+                var max = getMaxOfArray(arrayDataNbMarkers);
+                deleteOldValues(arrayLabelsNbMarkers, arrayDataNbMarkers, 20);
+                displayChart(ctxNbMarkers, arrayLabelsNbMarkers, arrayDataNbMarkers,
+                    min==max, max);
+        });
+
+        <!-- Closest -->
+        var ctxClosest = document.getElementById('chart_closest_div').getContext('2d');
+        var arrayLabelsClosest = new Array();
+        var arrayDataClosest = new Array();
+        socket.on('Closest', function(data) {
+                document.getElementById('closest_value').innerHTML = data.value;
+                arrayLabelsClosest.push(data.time);
+                arrayDataClosest.push(data.value);
+                var min = getMinOfArray(arrayDataClosest);
+                var max = getMaxOfArray(arrayDataClosest);
+                deleteOldValues(arrayLabelsClosest, arrayDataClosest, 20);
+                displayChart(ctxClosest, arrayLabelsClosest, arrayDataClosest,
+                    min==max, max);
+        });
+
+    </script>
+</body>
+</html>
