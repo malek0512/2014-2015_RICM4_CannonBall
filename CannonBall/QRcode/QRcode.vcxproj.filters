@@ -13,6 +13,15 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\aruco">
+      <UniqueIdentifier>{6e3b9a80-34f1-4ffd-8f6a-7db220d701f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ai">
+      <UniqueIdentifier>{d678b8ce-cce3-475d-80f9-234824bbc497}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\server">
+      <UniqueIdentifier>{9d8c56e0-b25f-4cb5-8b34-8173021ec2aa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -21,56 +30,56 @@
     <ClCompile Include="Serial.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ar_omp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="arucofidmarkers.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="board.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="boarddetector.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cameraparameters.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="chromaticmask.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cvdrawingutils.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="highlyreliablemarkers.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="marker.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="markerdetector.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="subpixelcorner.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="mqtt_sender.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="ar_omp.cpp">
+      <Filter>Source Files\aruco</Filter>
     </ClCompile>
-    <ClCompile Include="AccelerometerSensor.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="arucofidmarkers.cpp">
+      <Filter>Source Files\aruco</Filter>
+    </ClCompile>
+    <ClCompile Include="board.cpp">
+      <Filter>Source Files\aruco</Filter>
+    </ClCompile>
+    <ClCompile Include="boarddetector.cpp">
+      <Filter>Source Files\aruco</Filter>
+    </ClCompile>
+    <ClCompile Include="cameraparameters.cpp">
+      <Filter>Source Files\aruco</Filter>
+    </ClCompile>
+    <ClCompile Include="chromaticmask.cpp">
+      <Filter>Source Files\aruco</Filter>
+    </ClCompile>
+    <ClCompile Include="cvdrawingutils.cpp">
+      <Filter>Source Files\aruco</Filter>
+    </ClCompile>
+    <ClCompile Include="highlyreliablemarkers.cpp">
+      <Filter>Source Files\aruco</Filter>
     </ClCompile>
     <ClCompile Include="AI.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\ai</Filter>
     </ClCompile>
     <ClCompile Include="AIcannonball.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\ai</Filter>
     </ClCompile>
     <ClCompile Include="AImap.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\ai</Filter>
     </ClCompile>
     <ClCompile Include="AIRabbit.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\ai</Filter>
+    </ClCompile>
+    <ClCompile Include="markerdetector.cpp">
+      <Filter>Source Files\aruco</Filter>
+    </ClCompile>
+    <ClCompile Include="marker.cpp">
+      <Filter>Source Files\aruco</Filter>
+    </ClCompile>
+    <ClCompile Include="mqtt_sender.cpp">
+      <Filter>Source Files\server</Filter>
+    </ClCompile>
+    <ClCompile Include="AccelerometerSensor.cpp">
+      <Filter>Source Files\server</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -134,5 +143,8 @@
     <ClInclude Include="AImap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
 </Project>
