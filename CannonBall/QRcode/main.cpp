@@ -231,22 +231,27 @@ int main(int argc, char *argv[]) {
 
 	int index = 0;
 	double tick = (double)getTickCount();
+	double tick2 = (double)getTickCount();
 	double laps = 0;
+	double laps2 = 0;
 	float total = 0;
 	do {
 		//Calculate processing time
 		index++;
 		laps = (((double)getTickCount() - tick) / getTickFrequency() * 1000);
 		total += (float)laps;
-		//std::cout << "time enlapsed : " << laps << " ms" << " (avg : " << total / index << ")" << std::endl;
+		std::cout << "time enlapsed : " << laps << " ms" << " (avg : " << total / index << ")" << std::endl;
 		tick = (double)getTickCount();
 
 		//Get a new frame
 		TheVideoCapturer.retrieve(TheInputImage);
 		TheVideoCapturer.grab();
 
+		tick2 = (double)getTickCount();
 		//Detection of markers in the image passed
 		MDetector.detect(TheInputImage, TheMarkers, TheCameraParameters, TheMarkerSize);
+		laps2 = (((double)getTickCount() - tick2) / getTickFrequency() * 1000);
+		std::cout << "time enlasped in detect : " <<laps2 << std::endl;
 
 		//Get steering and throttle from AI
 		ai->getCommand(&TheMarkers, &steering, &throttle, TheInputImage.size().width);

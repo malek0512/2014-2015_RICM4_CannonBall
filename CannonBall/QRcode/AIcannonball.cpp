@@ -116,7 +116,7 @@ void AICannonball::getCommand(vector<aruco::Marker>* TheMarkers, int* steering, 
 				if (id == -1) {
 					id = it->id;
 				}
-				//on compare la valeur (1,3) de la matrice de translationd du dernier marker noté avec le courant
+				//on compare la valeur (1,3) de la matrice de translation du dernier marker noté avec le courant
 				else if (elements[id].marker.Tvec.ptr<float>(0)[2] > elements[it->id].marker.Tvec.ptr<float>(0)[2]) {
 					id = it->id;
 				}
