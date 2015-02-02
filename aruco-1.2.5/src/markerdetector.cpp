@@ -122,152 +122,234 @@ void MarkerDetector::detect ( const  cv::Mat &input,std::vector<Marker> &detecte
 void MarkerDetector::detect ( const  cv::Mat &input,vector<Marker> &detectedMarkers,Mat camMatrix ,Mat distCoeff ,float markerSizeMeters ,bool setYPerpendicular) throw ( cv::Exception )
 {
 
-
-    //it must be a 3 channel image
-    if ( input.type() ==CV_8UC3 )   cv::cvtColor ( input,grey,CV_BGR2GRAY );
-    else     grey=input;
+double tick = (double)getTickCount();
+double timeEnlasped;
+//bloc 1
+	{
+		//it must be a 3 channel image
+		if ( input.type() ==CV_8UC3 )   cv::cvtColor ( input,grey,CV_BGR2GRAY );
+		else     grey=input;
+	}
+timeEnlasped = ((double)getTickCount() - tick);
+std::cout << "time enlasped in bloc 1 : " <<timeEnlasped << std::endl;
+tick = (double)getTickCount();
 
 
 //     cv::cvtColor(grey,_ssImC ,CV_GRAY2BGR); //DELETE
 
-    //clear input data
-    detectedMarkers.clear();
+//bloc 2
+	{
+		//clear input data
+		detectedMarkers.clear();
 
 
-    cv::Mat imgToBeThresHolded=grey;
-    double ThresParam1=_thresParam1,ThresParam2=_thresParam2;
-    //Must the image be downsampled before continue pocessing?
-    if ( pyrdown_level!=0 )
-    {
-        reduced=grey;
-        for ( int i=0;i<pyrdown_level;i++ )
-        {
-            cv::Mat tmp;
-            cv::pyrDown ( reduced,tmp );
-            reduced=tmp;
-        }
-        int red_den=pow ( 2.0f,pyrdown_level );
-        imgToBeThresHolded=reduced;
-        ThresParam1/=float ( red_den );
-        ThresParam2/=float ( red_den );
-    }
+		cv::Mat imgToBeThresHolded=grey;
+		double ThresParam1=_thresParam1,ThresParam2=_thresParam2;
+	}
+timeEnlasped = ((double)getTickCount() - tick);
+std::cout << "time enlasped in bloc 2 : " <<timeEnlasped << std::endl;
+tick = (double)getTickCount();
 
-    ///Do threshold the image and detect contours
-    thresHold ( _thresMethod,imgToBeThresHolded,thres,ThresParam1,ThresParam2 );
-    //an erosion might be required to detect chessboard like boards
-    if ( _doErosion )
-    {
-        erode ( thres,thres2,cv::Mat() );
-        thres2.copyTo(thres); //vs thres=thres2;
-    }
-    //find all rectangles in the thresholdes image
-    vector<MarkerCandidate > MarkerCanditates;
-    detectRectangles ( thres,MarkerCanditates );
-    //if the image has been downsampled, then calcualte the location of the corners in the original image
-    if ( pyrdown_level!=0 )
-    {
-        float red_den=pow ( 2.0f,pyrdown_level );
-        float offInc= ( ( pyrdown_level/2. )-0.5 );
-        for ( unsigned int i=0;i<MarkerCanditates.size();i++ ) {
-            for ( int c=0;c<4;c++ )
-            {
-                MarkerCanditates[i][c].x=MarkerCanditates[i][c].x*red_den+offInc;
-                MarkerCanditates[i][c].y=MarkerCanditates[i][c].y*red_den+offInc;
-            }
-            //do the same with the the contour points
-            for ( int c=0;c<MarkerCanditates[i].contour.size();c++ )
-            {
-                MarkerCanditates[i].contour[c].x=MarkerCanditates[i].contour[c].x*red_den+offInc;
-                MarkerCanditates[i].contour[c].y=MarkerCanditates[i].contour[c].y*red_den+offInc;
-            }
-        }
-    }
+//bloc 3
+	{
+		//Must the image be downsampled before continue pocessing?
+		if ( pyrdown_level!=0 )
+		{
+			reduced=grey;
+			for ( int i=0;i<pyrdown_level;i++ )
+			{
+				cv::Mat tmp;
+				cv::pyrDown ( reduced,tmp );
+				reduced=tmp;
+			}
+			int red_den=pow ( 2.0f,pyrdown_level );
+			imgToBeThresHolded=reduced;
+			ThresParam1/=float ( red_den );
+			ThresParam2/=float ( red_den );
+		}
+	}
+timeEnlasped = ((double)getTickCount() - tick);
+std::cout << "time enlasped in bloc 3 : " <<timeEnlasped << std::endl;
+tick = (double)getTickCount();
 
+//bloc 4
+	{
+		///Do threshold the image and detect contours
+		thresHold ( _thresMethod,imgToBeThresHolded,thres,ThresParam1,ThresParam2 );
+	}
+timeEnlasped = ((double)getTickCount() - tick);
+std::cout << "time enlasped in bloc 4 : " <<timeEnlasped << std::endl;
+tick = (double)getTickCount();
+
+//bloc 5
+	{
+
+		//an erosion might be required to detect chessboard like boards
+		if ( _doErosion )
+		{
+			erode ( thres,thres2,cv::Mat() );
+			thres2.copyTo(thres); //vs thres=thres2;
+		}
+	}
+timeEnlasped = ((double)getTickCount() - tick);
+std::cout << "time enlasped in bloc 5 : " <<timeEnlasped << std::endl;
+tick = (double)getTickCount();
+
+//bloc6
+	{
+		//find all rectangles in the thresholdes image
+		vector<MarkerCandidate > MarkerCanditates;
+		detectRectangles ( thres,MarkerCanditates );
+	}
+timeEnlasped = ((double)getTickCount() - tick);
+std::cout << "time enlasped in bloc 6 : " <<timeEnlasped << std::endl;
+tick = (double)getTickCount();
+
+//bloc7
+	{
+		//if the image has been downsampled, then calcualte the location of the corners in the original image
+		if ( pyrdown_level!=0 )
+		{
+			float red_den=pow ( 2.0f,pyrdown_level );
+			float offInc= ( ( pyrdown_level/2. )-0.5 );
+			for ( unsigned int i=0;i<MarkerCanditates.size();i++ ) {
+				for ( int c=0;c<4;c++ )
+				{
+					MarkerCanditates[i][c].x=MarkerCanditates[i][c].x*red_den+offInc;
+					MarkerCanditates[i][c].y=MarkerCanditates[i][c].y*red_den+offInc;
+				}
+				//do the same with the the contour points
+				for ( int c=0;c<MarkerCanditates[i].contour.size();c++ )
+				{
+					MarkerCanditates[i].contour[c].x=MarkerCanditates[i].contour[c].x*red_den+offInc;
+					MarkerCanditates[i].contour[c].y=MarkerCanditates[i].contour[c].y*red_den+offInc;
+				}
+			}
+		}
+	}
+timeEnlasped = ((double)getTickCount() - tick);
+std::cout << "time enlasped in bloc 7 : " <<timeEnlasped << std::endl;
+tick = (double)getTickCount();
     
-    ///identify the markers
-    vector<vector<Marker> >markers_omp(omp_get_max_threads());
-    vector<vector < std::vector<cv::Point2f> > >candidates_omp(omp_get_max_threads());
-    #pragma omp parallel for
-    for ( unsigned int i=0;i<MarkerCanditates.size();i++ )
-    {
-        //Find proyective homography
-        Mat canonicalMarker;
-        bool resW=false;
-     	resW=warp ( grey,canonicalMarker,Size ( _markerWarpSize,_markerWarpSize ),MarkerCanditates[i] );
-        if (resW) {
-             int nRotations;
-            int id= ( *markerIdDetector_ptrfunc ) ( canonicalMarker,nRotations );
-            if ( id!=-1 )
-            {
- 		if(_cornerMethod==LINES) // make LINES refinement before lose contour points
-		  refineCandidateLines( MarkerCanditates[i], camMatrix, distCoeff ); 
-                markers_omp[omp_get_thread_num()].push_back ( MarkerCanditates[i] );
-                markers_omp[omp_get_thread_num()].back().id=id;
-                //sort the points so that they are always in the same order no matter the camera orientation
-                std::rotate ( markers_omp[omp_get_thread_num()].back().begin(),markers_omp[omp_get_thread_num()].back().begin() +4-nRotations,markers_omp[omp_get_thread_num()].back().end() );
-            }
-            else candidates_omp[omp_get_thread_num()].push_back ( MarkerCanditates[i] );
-        }
-       
-    }
+
+//bloc 8
+	{
+		///identify the markers
+		vector<vector<Marker> >markers_omp(omp_get_max_threads());
+		vector<vector < std::vector<cv::Point2f> > >candidates_omp(omp_get_max_threads());
+		#pragma omp parallel for
+		for ( unsigned int i=0;i<MarkerCanditates.size();i++ )
+		{
+			//Find proyective homography
+			Mat canonicalMarker;
+			bool resW=false;
+			resW=warp ( grey,canonicalMarker,Size ( _markerWarpSize,_markerWarpSize ),MarkerCanditates[i] );
+			if (resW) {
+				 int nRotations;
+				int id= ( *markerIdDetector_ptrfunc ) ( canonicalMarker,nRotations );
+				if ( id!=-1 )
+				{
+			if(_cornerMethod==LINES) // make LINES refinement before lose contour points
+			  refineCandidateLines( MarkerCanditates[i], camMatrix, distCoeff );
+					markers_omp[omp_get_thread_num()].push_back ( MarkerCanditates[i] );
+					markers_omp[omp_get_thread_num()].back().id=id;
+					//sort the points so that they are always in the same order no matter the camera orientation
+					std::rotate ( markers_omp[omp_get_thread_num()].back().begin(),markers_omp[omp_get_thread_num()].back().begin() +4-nRotations,markers_omp[omp_get_thread_num()].back().end() );
+				}
+				else candidates_omp[omp_get_thread_num()].push_back ( MarkerCanditates[i] );
+			}
+		}
+	}
+timeEnlasped = ((double)getTickCount() - tick);
+std::cout << "time enlasped in bloc 8 : " <<timeEnlasped << std::endl;
+tick = (double)getTickCount();
+
+//bloc 9
+	{
     //unify parallel data 
 	joinVectors(markers_omp,detectedMarkers,true);
 	joinVectors(candidates_omp,_candidates,true);
-
-
-
-    ///refine the corner location if desired
-    if ( detectedMarkers.size() >0 && _cornerMethod!=NONE && _cornerMethod!=LINES )
-    {
-        vector<Point2f> Corners;
-        for ( unsigned int i=0;i<detectedMarkers.size();i++ )
-            for ( int c=0;c<4;c++ )
-                Corners.push_back ( detectedMarkers[i][c] );
-
-        if ( _cornerMethod==HARRIS )
-            findBestCornerInRegion_harris ( grey, Corners,7 );
-        else if ( _cornerMethod==SUBPIX )
-            cornerSubPix ( grey, Corners,cvSize ( 5,5 ), cvSize ( -1,-1 )   ,cvTermCriteria ( CV_TERMCRIT_ITER|CV_TERMCRIT_EPS,3,0.05 ) );
-
-        //copy back
-        for ( unsigned int i=0;i<detectedMarkers.size();i++ )
-            for ( int c=0;c<4;c++ )     detectedMarkers[i][c]=Corners[i*4+c];
-    }
-    //sort by id
-    std::sort ( detectedMarkers.begin(),detectedMarkers.end() );
-    //there might be still the case that a marker is detected twice because of the double border indicated earlier,
-    //detect and remove these cases
-    int borderDistThresX=_borderDistThres*float(input.cols);
-    int borderDistThresY=_borderDistThres*float(input.rows);
-    vector<bool> toRemove ( detectedMarkers.size(),false );
-    for ( int i=0;i<int ( detectedMarkers.size() )-1;i++ )
-    {
-        if ( detectedMarkers[i].id==detectedMarkers[i+1].id && !toRemove[i+1] )
-        {
-            //deletes the one with smaller perimeter
-            if ( perimeter ( detectedMarkers[i] ) >perimeter ( detectedMarkers[i+1] ) ) toRemove[i+1]=true;
-            else toRemove[i]=true;
-        }
-        //delete if any of the corners is too near image border
-        for(size_t c=0;c<detectedMarkers[i].size();c++){
-	    if ( detectedMarkers[i][c].x<borderDistThresX ||
-	      detectedMarkers[i][c].y<borderDistThresY || 
-	      detectedMarkers[i][c].x>input.cols-borderDistThresX ||
-	      detectedMarkers[i][c].y>input.rows-borderDistThresY ) toRemove[i]=true;
-
 	}
- 
-        
-    }
-    //remove the markers marker
-    removeElements ( detectedMarkers, toRemove );
+timeEnlasped = ((double)getTickCount() - tick);
+std::cout << "time enlasped in bloc 9 : " <<timeEnlasped << std::endl;
+tick = (double)getTickCount();
 
-    ///detect the position of detected markers if desired
-    if ( camMatrix.rows!=0  && markerSizeMeters>0 )
-    {
-        for ( unsigned int i=0;i<detectedMarkers.size();i++ )
-            detectedMarkers[i].calculateExtrinsics ( markerSizeMeters,camMatrix,distCoeff,setYPerpendicular );
-    }
+
+//bloc 10
+	{
+		///refine the corner location if desired
+		if ( detectedMarkers.size() >0 && _cornerMethod!=NONE && _cornerMethod!=LINES )
+		{
+			vector<Point2f> Corners;
+			for ( unsigned int i=0;i<detectedMarkers.size();i++ )
+				for ( int c=0;c<4;c++ )
+					Corners.push_back ( detectedMarkers[i][c] );
+
+			if ( _cornerMethod==HARRIS )
+				findBestCornerInRegion_harris ( grey, Corners,7 );
+			else if ( _cornerMethod==SUBPIX )
+				cornerSubPix ( grey, Corners,cvSize ( 5,5 ), cvSize ( -1,-1 )   ,cvTermCriteria ( CV_TERMCRIT_ITER|CV_TERMCRIT_EPS,3,0.05 ) );
+
+			//copy back
+			for ( unsigned int i=0;i<detectedMarkers.size();i++ )
+				for ( int c=0;c<4;c++ )     detectedMarkers[i][c]=Corners[i*4+c];
+		}
+	}
+timeEnlasped = ((double)getTickCount() - tick);
+std::cout << "time enlasped in bloc 10 : " <<timeEnlasped << std::endl;
+tick = (double)getTickCount();
+
+//bloc 11
+	{
+		//sort by id
+		std::sort ( detectedMarkers.begin(),detectedMarkers.end() );
+		//there might be still the case that a marker is detected twice because of the double border indicated earlier,
+		//detect and remove these cases
+		int borderDistThresX=_borderDistThres*float(input.cols);
+		int borderDistThresY=_borderDistThres*float(input.rows);
+		vector<bool> toRemove ( detectedMarkers.size(),false );
+		for ( int i=0;i<int ( detectedMarkers.size() )-1;i++ )
+		{
+			if ( detectedMarkers[i].id==detectedMarkers[i+1].id && !toRemove[i+1] )
+			{
+				//deletes the one with smaller perimeter
+				if ( perimeter ( detectedMarkers[i] ) >perimeter ( detectedMarkers[i+1] ) ) toRemove[i+1]=true;
+				else toRemove[i]=true;
+			}
+			//delete if any of the corners is too near image border
+			for(size_t c=0;c<detectedMarkers[i].size();c++){
+			if ( detectedMarkers[i][c].x<borderDistThresX ||
+			  detectedMarkers[i][c].y<borderDistThresY ||
+			  detectedMarkers[i][c].x>input.cols-borderDistThresX ||
+			  detectedMarkers[i][c].y>input.rows-borderDistThresY ) toRemove[i]=true;
+			}
+		}
+	}
+timeEnlasped = ((double)getTickCount() - tick);
+std::cout << "time enlasped in bloc 11 : " <<timeEnlasped << std::endl;
+tick = (double)getTickCount();
+
+//bloc 12
+	{
+		//remove the markers marker
+		removeElements ( detectedMarkers, toRemove );
+	}
+timeEnlasped = ((double)getTickCount() - tick);
+std::cout << "time enlasped in bloc 12 : " <<timeEnlasped << std::endl;
+tick = (double)getTickCount();
+
+//bloc 13
+	{
+		///detect the position of detected markers if desired
+		if ( camMatrix.rows!=0  && markerSizeMeters>0 )
+		{
+			for ( unsigned int i=0;i<detectedMarkers.size();i++ )
+				detectedMarkers[i].calculateExtrinsics ( markerSizeMeters,camMatrix,distCoeff,setYPerpendicular );
+		}
+	}
+timeEnlasped = ((double)getTickCount() - tick);
+std::cout << "time enlasped in bloc 13 : " <<timeEnlasped << std::endl;
+tick = (double)getTickCount();
 }
 
 
