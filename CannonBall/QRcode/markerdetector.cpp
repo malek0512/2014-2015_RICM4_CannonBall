@@ -230,7 +230,7 @@ void MarkerDetector::detect(const  cv::Mat &input, vector<Marker> &detectedMarke
 			resW=warp ( grey,canonicalMarker,Size ( _markerWarpSize,_markerWarpSize ),MarkerCanditates[i] );
 			if (resW)
 			{
-				int nRotations;
+				int nRotations; 
 				int id= ( *markerIdDetector_ptrfunc ) ( canonicalMarker,nRotations );
 				if ( id!=-1 )
 				{
