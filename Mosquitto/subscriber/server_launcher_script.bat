@@ -1,0 +1,1 @@
+START "Server"	node subscriber.js localhost 1883 localhost
