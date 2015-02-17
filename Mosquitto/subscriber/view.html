@@ -52,9 +52,10 @@
                 <td id="nbClient" style="vertical-align: middle" class="text-info">0</td>
             </tr>
 			<tr>
-                <canvas id="myCanvas" width="500" height="500"
-					style="border:1px solid #000000;">
+                <canvas id="myCanvas" width="640" height="480"
+					style="border:1px solid #000000">
 				</canvas>
+				<input type="submit" id="envoi_message" value="STOP" />
             </tr>
         </table>
     </div>
@@ -229,8 +230,31 @@
         });
 
 		        <!-- Images -->
+				
 		var ctx = document.getElementById('myCanvas').getContext('2d');
-		 socket.on("Images", function(info) {
+		socket.on("image", function(info) {
+		 console.log('Info recu');
+		  if (info.image) {
+			var img = new Image();
+			img.src = 'data:image/jpeg;base64,' + info.buffer;
+			ctx.drawImage(img, 0, 0);
+		  }
+		});
+		
+		// Lorsqu'on envoie le formulaire, on transmet le message et on l'affiche sur la page
+		$('#formulaire_chat').submit(function () {
+			var message = $('#message').val();
+			socket.emit('message', message); // Transmet le message aux autres
+			insereMessage(pseudo, message); // Affiche le message aussi sur notre page
+			$('#message').val('').focus(); // Vide la zone de Chat et remet le focus dessus
+			return false; // Permet de bloquer l'envoi "classique" du formulaire
+		});
+
+		//$(#envoyer_message).
+		
+		/*
+		var ctx = document.getElementById('myCanvas').getContext('2d');
+		socket.on("Images", function(info) {
 		 console.log('Images recu');
 		  if (info.image) {
 			var img = new Image();
@@ -238,6 +262,7 @@
 			ctx.drawImage(img, 0, 0);
 		  }
 		});
+		*/
     </script>
 </body>
 </html>

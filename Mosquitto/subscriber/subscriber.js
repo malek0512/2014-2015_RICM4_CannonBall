@@ -163,8 +163,15 @@ io.sockets.on('disconnect', function() {
 			io.sockets.emit('Closest', { time: ClosestCounter, value: parseFloat(message) });
 			ClosestCounter++;
 		} else if (topic == 'camera/images') {
-		console.log('Client Lisening '+ topic.toString() + '  ' + 'sent');
-			io.sockets.emit('Images', { value: message.toString('base64') });
+			console.log('Client Lisening '+ topic.toString() + '  ' + 'sent');
+			//io.sockets.emit('Images', { value: message.toString('base64') });
+
+			fs.readFile(__dirname + '/../../camera.jpeg', function(err, buf){
+				//socket.emit('image', { image: true, buffer: buf });
+				io.sockets.emit('image', { image: true, buffer: buf.toString('base64') });
+				console.log('image file is initialized');
+			});
+  
 		}
 	});
 //});

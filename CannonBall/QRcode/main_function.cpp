@@ -3,6 +3,9 @@
 #include <tchar.h>
 #include <string>
 #include "base64.h"
+//#include <cstdlib>
+//#include <pthread.h>
+//#define NUM_THREADS     1
 
 //Arduino
 Serial* arduin;
@@ -30,7 +33,7 @@ float TheMarkerSize;
 enum Runmode{ RABBIT, CANNON, MAP };
 Runmode run_mode;
 
-
+boolean cameraEnabled = true;
 
 /**
 * Send steering and throttle angles to the arduino
@@ -85,7 +88,31 @@ void initArduino() {
 void initMQTT() {
 	std::cout << "Connecting to " << mqtt_host << std::endl;
 	sender = new mqtt_sender("sender", mqtt_host, 1883);
-	sender->publish_to_mqtt("presence", "Hello mqtt");
+	//sender->publish_to_mqtt("presence", "Hello mqtt");
+	
+	//sender->subscribe(NULL, TOPIC_CAMERA_COMMANDS, MOSQUITTO_HIGH_PRIORITY);
+	//sender->on_message_of_mqtt(TOPIC_CAMERA_COMMANDS);
+}
+
+void writeImage() {
+	
+	//string output = base64_encode(buffer.data(), buffer.size());
+	//printf("Output: %s", output.c_str());
+	//int msgSize = TheInputImageCopy.total()*TheInputImageCopy.elemSize();
+	if (cameraEnabled) {
+		vector<unsigned char> buffer;
+		vector<int> compression_params;
+		compression_params.push_back(CV_IMWRITE_JPEG_QUALITY);
+		compression_params.push_back(9);
+		if (!cv::imwrite("../../../camera.jpeg", TheInputImageCopy, compression_params)){
+			printf("Image encoding failed\n");
+		}
+
+		//notify the nodejs server
+		sender->publish_to_mqtt(TOPIC_CAMERA_IMAGE, (char*) "refresh");
+	}
+	//printf("camera/images : size %d, bytes : %02s", msgSize, (char*)TheInputImageCopy.data);
+	//pthread_exit(NULL);
 }
 
 void initAruco() {
@@ -163,25 +190,6 @@ void sendMetrics(int steering, int throttle, double laps, double avg, Accelerome
 void updateView() {
 	//print marker info and draw the markers in image
 	TheInputImage.copyTo(TheInputImageCopy);
-	
-
-
-
-	vector<unsigned char> buffer;
-	vector<int> compression_params;
-	compression_params.push_back(CV_IMWRITE_JPEG_QUALITY);
-	compression_params.push_back(1);
-	if (!cv::imencode(".jpg", TheInputImageCopy, buffer, compression_params)){
-		printf("Image encoding failed");
-	}
-
-	//string output = base64_encode(buffer.data(), buffer.size());
-	//printf("Output: %s", output.c_str());
-	//int msgSize = TheInputImageCopy.total()*TheInputImageCopy.elemSize();
-	//sender->publish_to_mqtt("camera/images", (char*) output.c_str());
-	//printf("camera/images : size %d, bytes : %02s", msgSize, (char*)TheInputImageCopy.data);
-
-
 
 
 	for (unsigned int i = 0; i < TheMarkers.size(); i++) {
@@ -308,6 +316,9 @@ void main_function1(int argc, char *argv[]) {
 
 		//show input with augmented information
 		updateView();
+
+		//write the image
+		writeImage();
 	}
 
 	printf("ERROR ! Arduino is disconnected ! \n");

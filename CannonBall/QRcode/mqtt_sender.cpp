@@ -27,3 +27,30 @@ void mqtt_sender::publish_to_mqtt(char *topic, char *msg) {
 	}
         
 }
+
+void mqtt_sender::subscribe_to_mqtt(char *topic) {
+	//printf("NC Publish : TOPIC %s, MSG %s\n", topic, msg);
+	if (connected) {
+		printf("Subscribe : TOPIC %s\n", topic);
+		subscribe(NULL, topic, 2);
+	}
+}
+
+std::string* mqtt_sender::on_message_of_mqtt(char *topic) {
+	//printf("NC Publish : TOPIC %s, MSG %s\n", topic, msg);
+	printf("ON_MESSAGE : TOPIC %s\n", topic);
+	if (connected) {
+		printf("CONNECTED\n");
+		//printf("Subscribe : TOPIC %s\n", topic);
+		const mosquitto_message* msg = new mosquitto_message();
+		on_message(msg);
+		if (! strcmp(msg->topic, TOPIC_CAMERA_COMMANDS)) {
+			const char* r = (char*) msg->payload;
+			std::string* ret = new std::string(r);
+			printf("MSG RECU : TOPIC %s, MSG : %s \n", topic, r);
+			return ret;
+		}
+	}
+	return NULL;
+}
+

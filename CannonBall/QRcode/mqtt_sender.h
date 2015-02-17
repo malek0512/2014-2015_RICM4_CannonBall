@@ -3,6 +3,7 @@
 
 #include <mosquittopp.h>
 #include <stdint.h>
+#include <string>
 
 #define TOPIC_STEER "metrics/steering"
 #define TOPIC_THROT "metrics/throttle"
@@ -12,6 +13,12 @@
 #define TOPIC_ACCELEROMETER "metrics/accelerometer"
 #define TOPIC_NB_MARKERS "metrics/nb_markers"
 #define TOPIC_CLOSEST "metrics/closest"
+
+#define TOPIC_CAMERA_COMMANDS "camera/commands"
+#define TOPIC_CAMERA_IMAGE "camera/images"
+#define MOSQUITTO_HIGH_PRIORITY 2
+#define MOSQUITTO_MIDLE_PRIORITY 1
+#define MOSQUITTO_LOW_PRIORITY 0
 
 #if defined(__linux__)
 #define MOSQPP mosquittopp
@@ -41,7 +48,8 @@ class mqtt_sender : public MOSQPP::mosquittopp
          * @param msg message to send
          */
         void publish_to_mqtt(char *topic, char *msg);
-
+		void subscribe_to_mqtt(char *topic);
+		std::string* on_message_of_mqtt(char *topic);
    private:
         bool connected;
 };
