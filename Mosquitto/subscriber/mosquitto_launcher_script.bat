@@ -1,1 +1,1 @@
-START "Mosquitto Broker" 	mosquitto.exe -p 1883 -v
+mosquitto.exe -p 1883 -v

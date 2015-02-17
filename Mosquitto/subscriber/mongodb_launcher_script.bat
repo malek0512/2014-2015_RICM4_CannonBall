@@ -1,1 +1,1 @@
-START "MongoDB" 			mongod.exe --journal --rest --dbpath C:\data\
+mongod.exe --journal --rest --dbpath C:\data\
