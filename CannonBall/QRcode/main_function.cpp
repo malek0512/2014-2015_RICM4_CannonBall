@@ -84,13 +84,28 @@ void initArduino() {
 	}
 
 }
-
+void my_message_callback(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message) {
+	if (message->payloadlen){
+		printf("%s %s\n", message->topic, message->payload);
+	}
+	else{
+		printf("%s (null)\n", message->topic);
+	}
+	fflush(stdout);
+}
 void initMQTT() {
 	std::cout << "Connecting to " << mqtt_host << std::endl;
+	try {
 	sender = new mqtt_sender("sender", mqtt_host, 1883);
 	//sender->publish_to_mqtt("presence", "Hello mqtt");
 	
-	//sender->subscribe(NULL, TOPIC_CAMERA_COMMANDS, MOSQUITTO_HIGH_PRIORITY);
+	sender->subscribe(NULL, TOPIC_CAMERA_COMMANDS, MOSQUITTO_HIGH_PRIORITY);
+	//mosquitto_message msg = new 
+	//sender->on_message();
+	//mosquitto_message_callback_set((mosquitto*)sender, my_message_callback);
+	}	catch (exception e) {
+
+	}
 	//sender->on_message_of_mqtt(TOPIC_CAMERA_COMMANDS);
 }
 

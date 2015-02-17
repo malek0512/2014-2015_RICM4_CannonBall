@@ -50,6 +50,7 @@ class mqtt_sender : public MOSQPP::mosquittopp
         void publish_to_mqtt(char *topic, char *msg);
 		void subscribe_to_mqtt(char *topic);
 		std::string* on_message_of_mqtt(char *topic);
+		void mqtt_sender::on_message (mosquitto_message* msg);
    private:
         bool connected;
 };

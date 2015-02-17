@@ -79,6 +79,7 @@ client.subscribe('metrics/mode');
 client.subscribe('metrics/nb_markers');
 client.subscribe('metrics/closest');
 client.subscribe('camera/images');
+client.subscribe('camera/commands');
 console.log('Ready -- Listening for publishing ...\n');
 /*client.subscribe('presence');
 client.publish('presence', 'Hello mqtt');
@@ -87,13 +88,20 @@ var nbClient = 0;
 io.sockets.on('connection', function (socket) {
 	nbClient ++;
 	io.sockets.emit('new_client', nbClient);
+	//Relai l'information sur le broker, pour que le programme main la recoit
+	
+	socket.on('camera/commands', function(data) {
+		console.log('Publishing the commande from subscriber.js' + data.value.toString() +'\n');
+		client.publish('camera/commands', data.value.toString());
+	});
 });
 
 io.sockets.on('disconnect', function() {
     nbClient --;
 	io.sockets.emit('disconnected_client', nbClient);
 });
-	
+
+		
 //io.sockets.on('connection', function () {
 	client.on('message', function(topic, message) {
 		if (topic != 'camera/images') {
@@ -172,7 +180,7 @@ io.sockets.on('disconnect', function() {
 				console.log('image file is initialized');
 			});
   
-		}
+		} 
 	});
 //});
 client.options.reconnectPeriod = 60;
