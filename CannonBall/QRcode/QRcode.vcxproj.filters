@@ -89,6 +89,9 @@
     <ClCompile Include="base64.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AISheep.cpp">
+      <Filter>Source Files\ai</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ar_omp.h">
@@ -161,6 +164,9 @@
       <Filter>Source Files\main</Filter>
     </ClInclude>
     <ClInclude Include="base64.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AISheep.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

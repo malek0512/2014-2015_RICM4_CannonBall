@@ -9,8 +9,4 @@
     <LocalDebuggerCommandArguments>dict.yml camparam.yml 4 localhost COM3 rabbit 20259</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test|Win32'">
-    <LocalDebuggerCommandArguments>dict.yml camparam.yml 4 localhost COM3 rabbit 20259</LocalDebuggerCommandArguments>
-    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-  </PropertyGroup>
 </Project>

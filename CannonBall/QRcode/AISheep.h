@@ -12,8 +12,9 @@ class AISheep :
 	public AI
 {
 public:
-	AISheep();
+	AISheep(int argc, char *argv[]);
 	virtual ~AISheep();
+	virtual int convertIDtoAction(int id);
 	virtual void getCommand(
 				vector<aruco::Marker>* TheMarkers,
 				int* steering,
@@ -22,5 +23,7 @@ public:
 
 private :
 		int idle;
+		double deltaTime;
+		std::vector<std::pair<int,int>> tableIDAction;
 };
 

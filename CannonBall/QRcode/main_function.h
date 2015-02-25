@@ -8,6 +8,7 @@
 #include "cvdrawingutils.h"
 #include "AIRabbit.h"
 #include "AICannonball.h"
+#include "AISheep.h"
 #include "AImap.h"
 #include "mqtt_sender.h"
 #include "AccelerometerSensor.h"

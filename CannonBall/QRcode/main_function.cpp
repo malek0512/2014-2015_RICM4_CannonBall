@@ -30,7 +30,7 @@ String TheDict;
 String TheCamParam;
 float TheMarkerSize;
 
-enum Runmode{ RABBIT, CANNON, MAP };
+enum Runmode{ RABBIT, CANNON, SHEEP, MAP };
 Runmode run_mode;
 
 boolean cameraEnabled = true;
@@ -64,6 +64,32 @@ void sendCommand(Serial* arduin, int steering, int throttle) {
 /**
 * Initialization of the arduino
 */
+/**
+* Write for extreme programming 
+* buffer is supposed initialized
+*/
+
+void writeSerial(Serial* s, char* buffer, unsigned int n) {
+	int res = 0;
+	char b[1] = { 0 };
+	for (int i = 0; i < n; i++) {
+		s->WriteData(buffer+i, n);
+		
+		if ((res = s->ReadData(b, 1)) != 1 || b[0] != buffer[i])
+			i--;
+	}
+}
+
+/**
+* Read for extreme programming
+* buffer is supposed allocated
+*/
+void readSerial(Serial* s, char* buffer, unsigned n) {
+	for (int i = 0; i < n; i++) {
+		while (s->ReadData(buffer+i, 1) == -1);
+	}
+}
+
 void initArduino() {
 	arduin = new Serial(serial_port);
 	
@@ -78,12 +104,13 @@ void initArduino() {
 		//	if (DEBUG) printf("ARDUINO INIT Bytes Read : readResult(%d), %d \n", readResult, tmp[0]);
 
 		//For leaving the active looping in arduino setup
-		char init = 255;
-		//(arduin)->WriteData(&init, 1);
-		//sendCommand(arduin, steering, throttle); //DO NOT REMOVE THIS LINE FOR SOME REASON IT DOESN't WORK IF YOU DELETE It
+		unsigned int emergencyTime = 1000;
+		if (DEBUG) printf("EmergencyTime : %02x\n", (char*) emergencyTime);
+		//writeSerial(arduin, (char*)emergencyTime, 4);
 	}
 
 }
+
 void my_message_callback(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message) {
 	if (message->payloadlen){
 		printf("%s %s\n", message->topic, message->payload);
@@ -93,6 +120,7 @@ void my_message_callback(struct mosquitto *mosq, void *userdata, const struct mo
 	}
 	fflush(stdout);
 }
+
 void initMQTT() {
 	std::cout << "Connecting to " << mqtt_host << std::endl;
 	try {
@@ -244,6 +272,10 @@ void readParams(int argc, char *argv[]) {
 	else if (argv6 == "cannon") {
 		run_mode = CANNON;
 	}
+	else if (argv6 == "sheep")
+	{
+		run_mode = SHEEP;
+	}
 	else if (argv6 == "map") {
 		run_mode = MAP;
 	}
@@ -262,6 +294,11 @@ void choose_run_mode(AI **ia, int argc, char *argv[]) {
 	else if (run_mode == CANNON) {
 		*ia = new AICannonball(argc, argv);
 		sender->publish_to_mqtt(TOPIC_MODE, "CannonBall");
+	}
+	else if (run_mode == SHEEP)
+	{
+		*ia = new AISheep(argc, argv);
+		sender->publish_to_mqtt(TOPIC_MODE, "Sheep");
 	}
 	else {
 		*ia = new AImap();
