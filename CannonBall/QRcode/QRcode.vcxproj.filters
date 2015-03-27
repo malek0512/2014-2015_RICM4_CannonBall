@@ -80,17 +80,20 @@
     <ClCompile Include="AccelerometerSensor.cpp">
       <Filter>Source Files\server</Filter>
     </ClCompile>
-    <ClCompile Include="main_function.cpp">
-      <Filter>Source Files\main</Filter>
-    </ClCompile>
     <ClCompile Include="test_arduino.cpp">
       <Filter>Source Files\main</Filter>
     </ClCompile>
-    <ClCompile Include="base64.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="AISheep.cpp">
       <Filter>Source Files\ai</Filter>
+    </ClCompile>
+    <ClCompile Include="simulator.cpp">
+      <Filter>Source Files\main</Filter>
+    </ClCompile>
+    <ClCompile Include="mqtt_receiver.cpp">
+      <Filter>Source Files\server</Filter>
+    </ClCompile>
+    <ClCompile Include="car.cpp">
+      <Filter>Source Files\main</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -157,17 +160,20 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="main_function.h">
-      <Filter>Source Files\main</Filter>
-    </ClInclude>
     <ClInclude Include="test_arduino.h">
       <Filter>Source Files\main</Filter>
     </ClInclude>
-    <ClInclude Include="base64.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="AISheep.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simulator.h">
+      <Filter>Source Files\main</Filter>
+    </ClInclude>
+    <ClInclude Include="mqtt_receiver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="car.h">
+      <Filter>Source Files\main</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

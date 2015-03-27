@@ -19,7 +19,6 @@
     <ClCompile Include="AISheep.cpp" />
     <ClCompile Include="arucofidmarkers.cpp" />
     <ClCompile Include="ar_omp.cpp" />
-    <ClCompile Include="base64.cpp" />
     <ClCompile Include="board.cpp" />
     <ClCompile Include="boarddetector.cpp" />
     <ClCompile Include="cameraparameters.cpp" />
@@ -31,11 +30,13 @@
     <ClCompile Include="AImap.cpp" />
     <ClCompile Include="AIRabbit.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="main_function.cpp" />
+    <ClCompile Include="car.cpp" />
     <ClCompile Include="marker.cpp" />
     <ClCompile Include="markerdetector.cpp" />
+    <ClCompile Include="mqtt_receiver.cpp" />
     <ClCompile Include="mqtt_sender.cpp" />
     <ClCompile Include="Serial.cpp" />
+    <ClCompile Include="simulator.cpp" />
     <ClCompile Include="subpixelcorner.cpp" />
     <ClCompile Include="test_arduino.cpp" />
   </ItemGroup>
@@ -45,7 +46,6 @@
     <ClInclude Include="aruco.h" />
     <ClInclude Include="arucofidmarkers.h" />
     <ClInclude Include="ar_omp.h" />
-    <ClInclude Include="base64.h" />
     <ClInclude Include="board.h" />
     <ClInclude Include="boarddetector.h" />
     <ClInclude Include="cameraparameters.h" />
@@ -57,12 +57,14 @@
     <ClInclude Include="AIcannonball.h" />
     <ClInclude Include="AImap.h" />
     <ClInclude Include="AIRabbit.h" />
-    <ClInclude Include="main_function.h" />
+    <ClInclude Include="car.h" />
     <ClInclude Include="marker.h" />
     <ClInclude Include="markerdetector.h" />
+    <ClInclude Include="mqtt_receiver.h" />
     <ClInclude Include="mqtt_sender.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Serial.h" />
+    <ClInclude Include="simulator.h" />
     <ClInclude Include="subpixelcorner.h" />
     <ClInclude Include="test_arduino.h" />
   </ItemGroup>

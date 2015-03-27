@@ -4,84 +4,104 @@
 
 #include <stdint.h>
 #include "mqtt_sender.h"
+bool	DEBUG_MQTT		= false;
+bool	DISABLE_MQTT	= false;
+
+
+
 
 mqtt_sender::mqtt_sender(const char *id, const char *host, int port) : mosquittopp(id)
 {
-    int keepalive = 60;
-    connected = false;
+	 
+	this->host = host;
+	this->port = port;
+	int keepalive = 60;
+	bool clean_session = true;
 
-    /* Connect immediately. This could also be done by calling
-     * mqtt_sender->connect(). */
-	connected = (connect_async(host, port, keepalive) == MOSQ_ERR_SUCCESS);
-	mosquitto_loop_start(NULL);
-    //loop_start();
+	mosquitto_lib_init();
+
+	//CNX
+	this->connect_async(host, port, keepalive);
+	
+	//LOOP
+	loop_start();
+	//mosquitto_loop_start(mosq);
+	
+
 };
 
-void mqtt_sender::publish_to_mqtt(char *topic, char *msg) {
-	//printf("NC Publish : TOPIC %s, MSG %s\n", topic, msg);
-	if (connected) {
-		printf("Publish : TOPIC %s, MSG %s\n", topic, msg);
-		publish(NULL, topic, strlen(msg)*sizeof(uint8_t), (uint8_t *)msg); //Client
-		
-		int id = 42;
-		//mosquitto_publish(NULL, &id, topic, strlen(msg), msg, 0, true);
-	}
-        
+mqtt_sender::~mqtt_sender() {
+	mosquitto_destroy(mosq);
+	mosquitto_lib_cleanup();
 }
 
-void mqtt_sender::subscribe_to_mqtt(char *topic) {
-	//printf("NC Publish : TOPIC %s, MSG %s\n", topic, msg);
-	if (connected) {
-		printf("Subscribe : TOPIC %s\n", topic);
-		subscribe(NULL, topic, 2);
-	}
+void mqtt_sender::publish_to_topic(char *topic, char *msg) {
+	//if (connected) {
+		if (DEBUG_MQTT)
+			printf("Publish : TOPIC %s, MSG %s\n", topic, msg);
+		//int res = mosquitto_publish(mosq, NULL, topic, strlen(msg)*sizeof(uint8_t), (uint8_t *)msg, 3, false);
+		int res = publish(NULL, topic, strlen(msg), msg, 0, false);
+		//publish(NULL, topic, strlen(msg), msg, 3, true);
+		/* 
+		if (res == MOSQ_ERR_SUCCESS ) 
+			printf("CAAAAAAAAAAAAAAAAAAAACCCCCCCCCCCCCCCAAAAAAAA\n");
+		if (res == MOSQ_ERR_INVAL)
+			printf("PIIIIIIIIIIIIIIIIIPPPPPPPPPPPIIIIIIIIIIIIIII\n");
+		if (res == MOSQ_ERR_NOMEM)
+			printf("WWWWWWWWWWWWWWWWWAZAAAAAAAAAAAAAAAAAAAAAAAA\n");
+			*/
+	//}
+
+	//else    
+	//	fprintf(stderr, "mqtt_sender Error Not connected\n");
 }
 
-void mqtt_sender::on_message(mosquitto_message* msg) {
-	
-	printf("******************************* Received msg : %s *****************************************************\n", msg->topic);
-}
 
-/*
-void my_message_callback(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message) {
+
+
+/* 
+void my_message_callback_default(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message)
+{
+	fprintf(stderr, "Salut BG ! \n");
 	if (message->payloadlen){
-		printf("%s %s\n", message->topic, message->payload);
+		fprintf(stderr, "%s %s\n", message->topic, message->payload);
+		//return;
 	}
-	else{
-		printf("%s (null)\n", message->topic);
-	}
-	fflush(stdout);
+	else
+		fprintf(stderr, "%s (null)\n", message->topic);
 }
 
+void mqtt_sender::subscribe_to_topic(char* topic)
+{
+	if (DEBUG_MQTT)
+		printf("Subscribe : TOPIC %s\n", topic);
 
-std::string* mqtt_sender::on_message_of_mqtt(char *topic) {
-	//printf("NC Publish : TOPIC %s, MSG %s\n", topic, msg);
-	printf("ON_MESSAGE : TOPIC %s\n", topic);
-	if (connected) {
-		printf("CONNECTED\n");
-		//printf("Subscribe : TOPIC %s\n", topic);
-		//const mosquitto_message* msg = new mosquitto_message();
-		//on_message(msg);
-		try {
-			mosquitto_message_callback_set((mosquitto*) this, my_message_callback);
-		}
-		catch (std::exception e) {
-			printf("CallBack on_message_of_mqtt excception : %s\n", e.what());
-		}
-		
-		
-		/*
-		printf("MSG RECU : TOPIC %s, MSG : %s \n", topic, (char*) msg->payload);
-		if (! strcmp(msg->topic, TOPIC_CAMERA_COMMANDS)) {
-			const char* r = (char*) msg->payload;
-			std::string* ret = new std::string(r);
-			printf("MSG RECU : TOPIC %s, MSG : %s \n", topic, r);
-			return ret;
-		}
-		
+	mosquitto_subscribe(mosq, NULL, topic, 2);
+}
+
+void mqtt_sender::subscribe_init() {
+	bool clean_session = true;
+	int keepalive = 60;
+	mosq = mosquitto_new(NULL, clean_session, NULL);
+	if (!mosq){
+		fprintf(stderr, "mqtt_sender Error: Out of memory.\n");
+		return;
 	}
-	return NULL;
+
+	mosquitto_message_callback_set(mosq, my_message_callback_default);
+
+
+	if (mosquitto_connect(mosq, host, port, keepalive)){
+		fprintf(stderr, "mqtt_sender Error Unable to connect.\n");
+		return;
+	}
+	printf("Subscribed \n");
+	mosquitto_subscribe(mosq, NULL, "malek", 2);
+	mosquitto_publish(mosq, NULL, "malek", strlen("Batista is hereeeeee"), "Batista is hereeeeee", 2, false);
+
+}
+void mqtt_sender::set_callback(void callback(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message)) {
+	//mosquitto_message_callback_set(mosq, callback);
 }
 
 */
-

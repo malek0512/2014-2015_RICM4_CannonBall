@@ -5,20 +5,21 @@
 #include <stdint.h>
 #include <string>
 
-#define TOPIC_STEER "metrics/steering"
-#define TOPIC_THROT "metrics/throttle"
-#define TOPIC_LAPS "metrics/laps"
-#define TOPIC_AVG "metrics/avg"
-#define TOPIC_MODE "metrics/mode"
-#define TOPIC_ACCELEROMETER "metrics/accelerometer"
-#define TOPIC_NB_MARKERS "metrics/nb_markers"
-#define TOPIC_CLOSEST "metrics/closest"
+#define TOPIC_STEER				"metrics/steering"
+#define TOPIC_THROT				"metrics/throttle"
+#define TOPIC_LAPS				"metrics/laps"
+#define TOPIC_AVG				"metrics/avg"
+#define TOPIC_MODE				"metrics/mode"
+#define TOPIC_ACCELEROMETER		"metrics/accelerometer"
+#define TOPIC_NB_MARKERS		"metrics/nb_markers"
+#define TOPIC_CLOSEST			"metrics/closest"
 
-#define TOPIC_CAMERA_COMMANDS "camera/commands"
-#define TOPIC_CAMERA_IMAGE "camera/images"
-#define MOSQUITTO_HIGH_PRIORITY 2
-#define MOSQUITTO_MIDLE_PRIORITY 1
-#define MOSQUITTO_LOW_PRIORITY 0
+#define TOPIC_COMMANDS_CAMERA			"camera/commands"
+#define TOPIC_COMMANDS_STOP_THE_CAR		"camera/commands"
+#define TOPIC_CAMERA_IMAGE				"camera/images"
+#define MOSQUITTO_HIGH_PRIORITY			2
+#define MOSQUITTO_MIDLE_PRIORITY		1
+#define MOSQUITTO_LOW_PRIORITY			0
 
 #if defined(__linux__)
 #define MOSQPP mosquittopp
@@ -29,8 +30,9 @@
 /**
  * Class which allow to send message throw MQTT protocol
  * @author Thibaut Coutelou, Benjamin Mugnier, Guillaume Perrin
+ * Modified by Malek MAMMAR
  */
-class mqtt_sender : public MOSQPP::mosquittopp
+class mqtt_sender : public mosqpp::mosquittopp
 {
     public:
         /**
@@ -47,12 +49,18 @@ class mqtt_sender : public MOSQPP::mosquittopp
          * @param topic the topic in which the message will be send
          * @param msg message to send
          */
-        void publish_to_mqtt(char *topic, char *msg);
-		void subscribe_to_mqtt(char *topic);
-		std::string* on_message_of_mqtt(char *topic);
-		void mqtt_sender::on_message (mosquitto_message* msg);
+        void publish_to_topic(char *topic, char *msg);
+		void subscribe_to_topic(char* topic);
+		void set_callback(void callback(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message));
+		void subscribe_init();
+		mosquitto *mosq;
    private:
         bool connected;
+
+		int id;
+		const char* host;
+		int port;
+
 };
 
 #endif
