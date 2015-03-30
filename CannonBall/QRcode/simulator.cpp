@@ -1,5 +1,6 @@
 #include "simulator.h"
-
+#include <stdio.h>
+#include "AISheep.h"
 
 bool DEBUG_MAIN	= true;
 
@@ -15,7 +16,7 @@ Recuperer les intruction pour les réemettre a au simulateur
 simulator::simulator()
 {
 	initMQTT();
-	
+	automata = new AISheep();
 }
 
 
@@ -42,11 +43,16 @@ void my_message_callback_simulator(struct mosquitto *mosq, void *userdata, const
 		char* topic = message->topic;
 		char* msg = (char*) message->payload;
 
-		if (!strcmp(topic, TOPIC_ANGLE)) {
+		if (!strcmp(topic, SIMULATOR_ANGLE)) {
 
-		} else if (!strcmp(topic, TOPIC_COORDONNEE)) {
+		} 
+		else if (!strcmp(topic, SIMULATOR_COORDONNEE)) {
 
-		} else if (!strcmp(topic, TOPIC_COORDONNEE)) {
+		}
+		else if (!strcmp(topic, SIMULATOR_THROTTLE)) {
+
+		}
+		else if (!strcmp(topic, SIMULATOR_STEERING)) {
 
 		}
 		else if (!strcmp(topic, "malek")) {

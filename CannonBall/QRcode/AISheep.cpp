@@ -82,7 +82,7 @@ void AISheep::parse(std::list<std::string> tokens)
 		//action act;
 		{
 			// lecture de token
-			if (tokens[i] != '[')
+			if (tokens.[i] != '[')
 				throw 0;
 			
 			//incrementation
