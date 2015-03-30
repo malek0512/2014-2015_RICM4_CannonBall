@@ -75,38 +75,38 @@ void AISheep::parse(std::list<std::string> tokens)
 	int _DValue_throttle = 91; //valeur par defaut de la vitesse
 	int _DValue_steering = 90; //valeur par defaut de l'orientation
 	int _DValue_time = 1000; //valeur par defaut du temps passé dans une action
-	int i = 0;
-	while (i < tokens.size()) {
+	std::list<std::string>::iterator i;
+	while (i !=  tokens.end()) {
 		//lecture de l'action
 		int id;
 		//action act;
 		{
 			// lecture de token
-			if (tokens.[i] != '[')
+			if (*i != "[")
 				throw 0;
 			
 			//incrementation
 			i++;
-			if(i >= tokens.size())
+			if(i != tokens.end())
 				throw 0;
 
 			//lecture de l'id
 			try{
-			id = std::stoi(tokens[i]);
+			id = std::stoi(*i);
 			}
 			catch( ... ){throw 0;}
 			
 			//incrementation
 			i++;
-			if(i >= tokens.size())
+			if(i != tokens.end())
 				throw 0;
 						
 			// lecture de token
-			if (tokens[i] != ']')
+			if (*i != "]")
 				throw 0;
 			//incrementation
 			i++;
-			if(i >= tokens.size())
+			if(i != tokens.end())
 				throw 0;
 
 		}
@@ -120,14 +120,14 @@ void AISheep::parse(std::list<std::string> tokens)
 			param.time = _DValue_time;
 
 			//lecture de chaque parametre configurer
-			while (i < tokens.size() && (tokens[i] == '-' || tokens[i] == '/'))
+			while (i < tokens.size() && (*i == "-" || *i == "/"))
 			{
 				//incrementation
 				i++;
-				if(i >= tokens.size())
+				if(i != tokens.end())
 					throw 0;
 				
-				if(tokens[i] == '/')
+				if(*i == "/")
 				{//nouvelle sequence d'action
 					tableIDAction.push_back(std::make_pair(id, param));
 					
@@ -138,31 +138,31 @@ void AISheep::parse(std::list<std::string> tokens)
 
 					//incrementation
 					i++;
-					if(i >= tokens.size())
+					if(i != tokens.end())
 						throw 0;
 					continue;
 				}
 						
 				//lecture du nom du parametre
-				std::string name_param = tokens[i];
+				std::string name_param = *i;
 				
 				//incrementation
 				i++;
-				if(i >= tokens.size())
+				if(i != tokens.end())
 					throw 0;
 
 				// lecture de token 
-				if (tokens[i] != '=')
+				if (*i != '=')
 					throw 0;
 				
 				//incrementation
 				i++;
-				if(i >= tokens.size())
+				if(i != tokens.end())
 					throw 0;
 
 				//lecture de la valeur
 				try{
-				valeur_param = std::stoi(tokens[i]);
+				valeur_param = std::stoi(*i);
 				}
 				catch( ... ){throw 0;}
 				
@@ -178,7 +178,7 @@ void AISheep::parse(std::list<std::string> tokens)
 				
 				//incrementation
 				i++;
-				if(i >= tokens.size())
+				if(i != tokens.end())
 					throw 0;
 			}
 
@@ -265,5 +265,4 @@ void AISheep::getCommand(vector<aruco::Marker>* TheMarkers, int* steering, int* 
 	}
 		
 }
-
 
