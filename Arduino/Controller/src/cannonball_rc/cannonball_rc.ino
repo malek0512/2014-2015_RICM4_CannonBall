@@ -12,8 +12,8 @@
 /* Variable declaration */
 Servo SteeringServo;
 Servo ThrottleServo;
-unsigned int steeringTarget = 90;
-unsigned int throttleTarget = 91;
+unsigned char steeringTarget = 90;
+unsigned char throttleTarget = 91;
 
 unsigned long time_rc_handler = 0;
 unsigned long time_data_check = 0;
@@ -86,23 +86,24 @@ void loop() {
     time_data_check = millis();
     
     //Communication serial
-    if (Serial.available() >= 1) {
+    if (Serial.available() >= 2) {
         steeringTarget = Serial.read();   
-        Serial.write((char)steeringTarget);
-        Serial.flush();
-    }
+        SteeringServo.write(steeringTarget);
+        throttleTarget = Serial.read();        
+        ThrottleServo.write(throttleTarget);
 
-    if (Serial.available() >= 1) {    
-        throttleTarget = Serial.read();
-        Serial.write((char)throttleTarget);
-        Serial.flush();
+        Serial.write(steeringTarget);
+        //Serial.flush();
+        Serial.write(throttleTarget);
+        //Serial.flush();
         last_time_data_check = time_data_check;
+    } else {
+        //Communication aux pins
+        SteeringServo.write(steeringTarget);
+        ThrottleServo.write(throttleTarget);  
     }
-    
-    //Communication aux pins
-    SteeringServo.write(steeringTarget);
-    ThrottleServo.write(throttleTarget);
 
+        
     //EMERGENCY STATE
     if (emergency || ((time_data_check - last_time_data_check) > TIME) ) {
         digitalWrite(13, HIGH); //for debug purposes only

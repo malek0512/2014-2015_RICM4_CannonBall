@@ -116,6 +116,7 @@ void car::main(int argc, char *argv[]) {
 		}
 
 		if (!STOP_THE_CAR)
+			//sendCommand(arduin, steering, throttle);
 			sendCommand(arduin, steering, throttle);
 		else
 			sendCommand(arduin, STEERING_STOP, THROTTLE_STOP);
@@ -144,7 +145,7 @@ void sendCommand(Serial* arduin, int steering, int throttle) {
 			std::cout << "Serial write fail !" << std::endl;
 	}
 
-	if (DEBUG_MAIN) printf("Bytes Written : %d, %d\n", bufferW[0], bufferW[1]);
+	if (DEBUG_MAIN) printf("Bytes Written : steering, throttle : %d, %d\n", bufferW[0], bufferW[1]);
 
 	if (! DISABLE_ARDUINO_CHECK) {
 	

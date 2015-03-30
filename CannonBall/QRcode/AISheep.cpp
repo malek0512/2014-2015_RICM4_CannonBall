@@ -14,70 +14,183 @@
 #include <Windows.h>
 
 using namespace aruco;
-
-
+	
 AISheep::AISheep(int argc, char *argv[]) {
 	if (argc < 1) {
-		std::cerr << "AI  Sheep usage : <actions.xml>" << std::endl;
-		std::cerr << "<actions.xml> : xml file which give qrcode ID for each action wanted" << std::endl;
+		std::cerr << "AI  Sheep usage : <actions.act>" << std::endl;
+		std::cerr << "<actions.act> : file which give qrcode ID for each action wanted" << std::endl;
 		Sleep(10000);
 		exit(-1);
 	}
 	//initialisation des variables
-	idle = 0;
+	idle = INIT;
 	deltaTime = -1;
+	
+	//parse du fichier
+	std::string tmp = lexer(argv[0]);
 
-	tableIDAction.push_back(std::make_pair(1, 20259)); //stop
-	tableIDAction.push_back(std::make_pair(2, 11405)); //left
-	tableIDAction.push_back(std::make_pair(3, 42307)); //right
+	parse(tmp);
+	std::cout << "yo, apachai dayo";
 
-
-	/*
-	//lecture du fichier xml
-	TiXmlDocument doc("conf.xml");
-	if (!doc.LoadFile()){ // on verifie le chargement du fichier xml
-		cerr << "erreur lors du chargement" << endl;
-		cerr << "error #" << doc.ErrorId() << " : " << doc.ErrorDesc() << endl;
-		return 1;
-	}
-
-	// on se place dans la premiere ligne de config
-	TiXmlElement *elem = doc.FirstChildElement()->FirstChildElement();
-
-	if (elem->Attribute("name") == "nbActions") {
-		nbActions = elem->Attribute("value");
-	}
-	// création du tableau d'actions
-
-	// bla bla bla
-
-
-	// on se place maintenant dans la partie actions
-	TiXmlElement *elem = doc.FirstChildElement();
-	elem = elem->NextSiblingElement();
-	elem = elem->FirstChildElement();
-	while (elem) {
-		String action = elem->Attribute("name");
-		String qrCode = elem->Attribute("value");
-		elem = elem->NextSiblingElement();
-	}
-	*/
 }
 
 AISheep::~AISheep() {
 	// TODO Auto-generated destructor stub
 }
 
-int AISheep::convertIDtoAction(int id)
+std::list<std::string> AISheep::lexer(std::string filepath)
 {
-	int res = 1;
+	std::ifstream ifs;
+	ifs.open(filepath);
 	
-	return res;
+	char tokenlist[] = { '[', ']', '=', '-', '/' };
+	bool istoken;
+	std::list<std::string> tokenExtracted;
+	char charCourant;
+
+	while (!ifs.eof())
+	{
+		charCourant = ifs.get();
+
+		//met a jour istoken pour next
+		{
+			int i = 0;
+			while (i<std::strlen(tokenlist) && tokenlist[i] != charCourant)
+			{
+				i++;
+			}
+			if (tokenlist[i] == charCourant)
+				istoken = true;
+			else
+				istoken = false;
+		}
+		if (isalnum(charCourant) || istoken)
+			tokenExtracted.push_back(charCourant);
+	}
+	return tokenExtracted;
+}
+
+void AISheep::parse(std::list<std::string> tokens)
+{
+	int _DValue_throttle = 91; //valeur par defaut de la vitesse
+	int _DValue_steering = 90; //valeur par defaut de l'orientation
+	int _DValue_time = 1000; //valeur par defaut du temps passé dans une action
+	int i = 0;
+	while (i < tokens.size()) {
+		//lecture de l'action
+		int id;
+		//action act;
+		{
+			// lecture de token
+			if (tokens[i] != '[')
+				throw 0;
+			
+			//incrementation
+			i++;
+			if(i >= tokens.size())
+				throw 0;
+
+			//lecture de l'id
+			try{
+			id = std::stoi(tokens[i]);
+			}
+			catch( ... ){throw 0;}
+			
+			//incrementation
+			i++;
+			if(i >= tokens.size())
+				throw 0;
+						
+			// lecture de token
+			if (tokens[i] != ']')
+				throw 0;
+			//incrementation
+			i++;
+			if(i >= tokens.size())
+				throw 0;
+
+		}
+
+		//lecture des paramètres associé a l'id
+		struct param param;
+		{
+			//valeur par default
+			param.throttle = _DValue_throttle;
+			param.steering = _DValue_steering;
+			param.time = _DValue_time;
+
+			//lecture de chaque parametre configurer
+			while (i < tokens.size() && (tokens[i] == '-' || tokens[i] == '/'))
+			{
+				//incrementation
+				i++;
+				if(i >= tokens.size())
+					throw 0;
+				
+				if(tokens[i] == '/')
+				{//nouvelle sequence d'action
+					tableIDAction.push_back(std::make_pair(id, param));
+					
+					//on remet les valeurs par defaut
+					param.throttle = _DValue_throttle;
+					param.steering = _DValue_steering;
+					param.time = _DValue_time;
+
+					//incrementation
+					i++;
+					if(i >= tokens.size())
+						throw 0;
+					continue;
+				}
+						
+				//lecture du nom du parametre
+				std::string name_param = tokens[i];
+				
+				//incrementation
+				i++;
+				if(i >= tokens.size())
+					throw 0;
+
+				// lecture de token 
+				if (tokens[i] != '=')
+					throw 0;
+				
+				//incrementation
+				i++;
+				if(i >= tokens.size())
+					throw 0;
+
+				//lecture de la valeur
+				try{
+				valeur_param = std::stoi(tokens[i]);
+				}
+				catch( ... ){throw 0;}
+				
+				//on enregistre les informations dans param
+				if (name_param.compare("speed") == 0)
+					param.throttle = valeur_param;
+				else if (name_param.compare("orientation") == 0)
+					param.steering = valeur_param;
+				else if (name_param.compare("time") == 0)
+					param.time = valeur_param;
+				else
+					throw 0;
+				
+				//incrementation
+				i++;
+				if(i >= tokens.size())
+					throw 0;
+			}
+
+		}
+
+		//on enregistre les resultats dans le tableau id-action
+		tableIDAction.push_back(std::make_pair(id, param));
+	}
 }
 
 void AISheep::getCommand(vector<aruco::Marker>* TheMarkers, int* steering, int* throttle, int width) {
 	
-	int timeOutAction = 10000;
 	//initialisation du vehicule
 	if (deltaTime == -1)
 	{
@@ -85,14 +198,15 @@ void AISheep::getCommand(vector<aruco::Marker>* TheMarkers, int* steering, int* 
 		*steering = 90;
 		deltaTime = 0;
 	}
-	if(idle == 0)
-	{//si aucune action a faire
+			
+	else
+	{
 		//cherche un qrCode
-		float distMinRequire = 3;
+		float distMinRequire = 3; //distance minimal necessaire pour accepter de faire le QrCode vue
 		float minDist = distMinRequire;
 
 		//recherche des qrCode
-		int id;
+		int id = -1;
 		{
 			for (std::vector<Marker>::iterator it = (*TheMarkers).begin(); it != (*TheMarkers).end(); it++) {
 				if (minDist > it->Tvec.ptr<float>(0)[2])
@@ -103,63 +217,53 @@ void AISheep::getCommand(vector<aruco::Marker>* TheMarkers, int* steering, int* 
 
 			}
 		}
-
-		//si la distance du plus proche n'est pass asser bonne
-		if (minDist > distMinRequire) {
-			deltaTime += (double) GetTickCount();
-			if (deltaTime > timeOutAction)
-				idle = 1;
+		
+		//Une nouvelle action est a traité
+		if( (idCurrentAction == -1 && id != -1) 
+			||(idCurrentAction != -1 && id != -1 && idCurrentAction != id)))
+		{
+			deltaTime = 0;
+			idCurrentAction = id;
+			
+			itCurrentAction  = tableIDAction.begin();
+			while (itCurrentAction != tableIDAction.end() && itCurrentAction ->first != id)
+			{
+				itCurrentAction ++;
+			}
+			
+			*steering = it->second.steering;
+			*throttle = it->second.throttle;
+			timeOutAction = it->second.time;
+			
 			return;
 		}
-
-		else
+		
+		//On suit le cours normal de l'action courante)
+		if(idCurrentAction != -1 && id == -1)
 		{
-			//raz du timer
-			deltaTime = 0;
-			//recherche de l'action a faire
+			deltaTime += (double) GetTickCount();
+			if (deltaTime > timeOutAction)
 			{
-				idle = 1;
-				std::vector<std::pair<int, int>>::iterator it = tableIDAction.begin();
-				while (it != tableIDAction.end() && it->second != id)
-				{
-					it++;
+				itCurrentAction++;
+				if(itCurrentAction != tableIDAction.end() && itCurrentAction->first == idCurrentAction)
+				{ //il y a une autre action associé a l'id en cours
+					deltaTime = 0;
+					*steering = it->second.steering;
+					*throttle = it->second.throttle;
+					timeOutAction = it->second.time;		
 				}
-				idle = it->first;
+				else
+				{
+					*throttle = 91;
+					*steering = 90;
+					idle = END;
+				}
 			}
+			
+			return;
 		}
-
-		//si aucun qrCode, continuer a chercher
-		//sinon realiser action qrCode
 	}
-	deltaTime += (double)GetTickCount();
-
-	switch (idle){
-		case 1: //stop
-			*throttle = 91;
-			*steering = 90;
-			break;
-		case 2: //turn left
-			*steering = 70;
-			if (deltaTime > timeOutAction)
-			{
-				idle = 0;
-				deltaTime = 0;
-				*steering = 90;
-			}
-			break;
-		case 3: //turn right
-			*steering = 110;
-			if (deltaTime > timeOutAction)
-			{
-				idle = 0;
-				deltaTime = 0;
-				*steering = 90;
-			}
-			break;
-		default: break;
-	}
-	
-
+		
 }
 
 

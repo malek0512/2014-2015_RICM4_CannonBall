@@ -14,15 +14,16 @@ Recuperer les intruction pour les réemettre a au simulateur
 
 simulator::simulator()
 {
-	//initMQTT();
-
+	initMQTT();
+	
 }
 
 
 simulator::~simulator()
 {
-	//delete mqtt;
-	//delete automata;
+	delete sender;
+	delete receiver;
+	delete automata;
 }
 
 void simulator::main(int argc, char* argv[]) 
@@ -45,7 +46,10 @@ void my_message_callback_simulator(struct mosquitto *mosq, void *userdata, const
 
 		} else if (!strcmp(topic, TOPIC_COORDONNEE)) {
 
-		} else if (!strcmp(topic, "malek")) {
+		} else if (!strcmp(topic, TOPIC_COORDONNEE)) {
+
+		}
+		else if (!strcmp(topic, "malek")) {
 			fprintf(stderr, "%s %s\n", topic, msg);
 		}
 		return;
@@ -57,7 +61,11 @@ void my_message_callback_simulator(struct mosquitto *mosq, void *userdata, const
 }
 
 void simulator::initMQTT() {
-	printf("Connecting to %s", mqtt_host);
-	mqtt = new mqtt_receiver("receiver", mqtt_host, port);
-	mqtt->set_callback(my_message_callback_simulator);
+	std::cout << "Connecting to " << mqtt_host << std::endl;
+	sender = new mqtt_sender("sender", mqtt_host, 1883);
+	receiver = new mqtt_receiver("receiver", mqtt_host, 1883);
+	receiver->set_callback(my_message_callback_simulator);
+	//receiver->envoie();
+	//sender->subscribe_init();
+	//sender->set_callback(my_message_callback);
 }
