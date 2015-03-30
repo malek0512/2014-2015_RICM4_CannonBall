@@ -152,7 +152,7 @@ void AISheep::parse(std::list<std::string> tokens)
 					throw 0;
 
 				// lecture de token 
-				if (*i != '=')
+				if (*i != "=")
 					throw 0;
 				
 				//incrementation
@@ -265,4 +265,3 @@ void AISheep::getCommand(vector<aruco::Marker>* TheMarkers, int* steering, int* 
 	}
 		
 }
-
