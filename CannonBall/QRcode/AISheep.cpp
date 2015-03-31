@@ -27,7 +27,7 @@ AISheep::AISheep(int argc, char *argv[]) {
 	deltaTime = -1;
 	
 	//parse du fichier
-	std::string tmp = lexer(argv[0]);
+	std::list<std::string> tmp = AISheep::lexer(argv[0]);
 
 	parse(tmp);
 	std::cout << "yo, apachai dayo";
@@ -64,11 +64,20 @@ std::list<std::string> AISheep::lexer(std::string filepath)
 			else
 				istoken = false;
 		}
-		if (isalnum(charCourant) || istoken)
-			tokenExtracted.push_back(charCourant);
+		string nextToken;
+		nextToken += charCourant;
+		//si on a pas un token, on recupere autant de charactere alpha num que possible
+		while (!ifs.eof() && isalnum(charCourant))
+		{
+			charCourant = ifs.get();
+			nextToken += charCourant;
+		}
+		//on push le token lu
+		tokenExtracted.push_back(nextToken);
 	}
 	return tokenExtracted;
 }
+
 
 void AISheep::parse(std::list<std::string> tokens)
 {
@@ -120,7 +129,7 @@ void AISheep::parse(std::list<std::string> tokens)
 			param.time = _DValue_time;
 
 			//lecture de chaque parametre configurer
-			while (i < tokens.size() && (*i == "-" || *i == "/"))
+			while (i != tokens.end() && (*i == "-" || *i == "/"))
 			{
 				//incrementation
 				i++;
@@ -161,8 +170,9 @@ void AISheep::parse(std::list<std::string> tokens)
 					throw 0;
 
 				//lecture de la valeur
+				int valeur_param;
 				try{
-				valeur_param = std::stoi(*i);
+					valeur_param = std::stoi(*i);
 				}
 				catch( ... ){throw 0;}
 				
@@ -220,7 +230,7 @@ void AISheep::getCommand(vector<aruco::Marker>* TheMarkers, int* steering, int* 
 		
 		//Une nouvelle action est a traité
 		if( (idCurrentAction == -1 && id != -1) 
-			||(idCurrentAction != -1 && id != -1 && idCurrentAction != id)))
+			||(idCurrentAction != -1 && id != -1 && idCurrentAction != id))
 		{
 			deltaTime = 0;
 			idCurrentAction = id;
@@ -231,9 +241,9 @@ void AISheep::getCommand(vector<aruco::Marker>* TheMarkers, int* steering, int* 
 				itCurrentAction ++;
 			}
 			
-			*steering = it->second.steering;
-			*throttle = it->second.throttle;
-			timeOutAction = it->second.time;
+			*steering = itCurrentAction->second.steering;
+			*throttle = itCurrentAction->second.throttle;
+			timeOutAction = itCurrentAction->second.time;
 			
 			return;
 		}
@@ -248,9 +258,9 @@ void AISheep::getCommand(vector<aruco::Marker>* TheMarkers, int* steering, int* 
 				if(itCurrentAction != tableIDAction.end() && itCurrentAction->first == idCurrentAction)
 				{ //il y a une autre action associé a l'id en cours
 					deltaTime = 0;
-					*steering = it->second.steering;
-					*throttle = it->second.throttle;
-					timeOutAction = it->second.time;		
+					*steering = itCurrentAction->second.steering;
+					*throttle = itCurrentAction->second.throttle;
+					timeOutAction = itCurrentAction->second.time;
 				}
 				else
 				{

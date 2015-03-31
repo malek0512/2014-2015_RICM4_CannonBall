@@ -80,6 +80,7 @@ client.subscribe('metrics/nb_markers');
 client.subscribe('metrics/closest');
 client.subscribe('camera/images');
 client.subscribe('camera/commands');
+client.subscribe('simulator/addqrcode');
 console.log('Ready -- Listening for publishing ...\n');
 /*client.subscribe('presence');
 client.publish('presence', 'Hello mqtt');

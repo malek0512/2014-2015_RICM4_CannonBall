@@ -1,6 +1,7 @@
 #include "simulator.h"
 #include <stdio.h>
 #include "AISheep.h"
+#include <string.h>
 
 bool DEBUG_MAIN	= true;
 
@@ -16,7 +17,7 @@ Recuperer les intruction pour les réemettre a au simulateur
 simulator::simulator()
 {
 	initMQTT();
-	automata = new AISheep();
+	//automata = new AISheep();
 }
 
 
@@ -29,7 +30,7 @@ simulator::~simulator()
 
 void simulator::main(int argc, char* argv[]) 
 {
-
+	automata = new AISheep(argc, argv);
 }
 
 //Méthodes intermédiaires
@@ -44,7 +45,7 @@ void my_message_callback_simulator(struct mosquitto *mosq, void *userdata, const
 		char* msg = (char*) message->payload;
 
 		if (!strcmp(topic, SIMULATOR_ANGLE)) {
-
+			//qrcode[]
 		} 
 		else if (!strcmp(topic, SIMULATOR_COORDONNEE)) {
 
@@ -74,4 +75,9 @@ void simulator::initMQTT() {
 	//receiver->envoie();
 	//sender->subscribe_init();
 	//sender->set_callback(my_message_callback);
+}
+
+int getID(char* string) {
+	//return strtok(string, ":");
+	return 0;
 }

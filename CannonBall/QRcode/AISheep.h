@@ -30,7 +30,6 @@ public:
 	* @return : String contenant seulement token selon la grammaire attendu
 	*/
 	std::list<std::string> lexer(std::string filepath);
-
 	/**
 	* Parse une liste de token et renvoie la table ID-Action a partir des tokens lu
 	* @param tokens : suite de token a parser
