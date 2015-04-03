@@ -306,7 +306,7 @@ private:
     //level of image reduction
     int pyrdown_level;
     //Images
-    cv::Mat grey,thres,thres2,reduced;
+    cv::Mat grey,thres,reduced; //thres2,
     //pointer to the function that analizes a rectangular region so as to detect its internal marker
     int (* markerIdDetector_ptrfunc)(const cv::Mat &in,int &nRotations);
 

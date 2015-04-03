@@ -1,5 +1,5 @@
 #include "AI.h"
-
+#define AI_DEBUG 0
 
 AI::AI()
 {

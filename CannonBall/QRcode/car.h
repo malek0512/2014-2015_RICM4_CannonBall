@@ -23,13 +23,26 @@ using namespace aruco;
 #define STEERING_STOP				96 //Normalement 90 mais 96 nous semble plus droit 
 #define THROTTLE_STOP				91
 #define DISABLE_ARDUINO				1
+#define DISABLE_VIDEO_WEB			0 //consomme environ 10 fps : on est 24 sans video_screen
 #define DISABLE_MQTT				0
 #define DISABLE_ARDUINO_CHECK		1 //Let it disable and it should work 
-#define DEBUG_MAIN					1
-#define DEBUG						1
+#define DEBUG_MAIN					0
+#define DEBUG						0
+#define DISABLE_VIDEO_SCREEN		0 //consomme environ 10 fps
 
+#define MIN_QRCODE_DISTANCE_MEAN 0.03f
+#define MIN_QRCODE_DISTANCE_HIGH 0.05f
+#define MIN_QRCODE_DISTANCE_LOW 0.001f
 enum Runmode{ RABBIT, CANNON, SHEEP, MAP };
 
+/* Optimisation 
+ * Le set min de la largeur minimale de detection d'un carré influe directement sur la 
+ * distance de detection d'un QRCODE puisque il devient plus petit
+ */
+/* - On a supprimer 2 copie d'image inutile thresh.copyTo(thresh2) voir markerdetector.cpp
+ * - enlever l'affichage de la camera en desactivant (mettant a 1) l'option DISABLE_VIDEO_SCREEN ci dessus
+ * - On a reduit la liste Qrcode possible dans le fichier passé en parametre 
+ */
 class car
 {
 	

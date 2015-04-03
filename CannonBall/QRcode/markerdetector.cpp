@@ -128,9 +128,7 @@ namespace aruco
 		//it must be a 3 channel image
 		if (input.type() == CV_8UC3)   cv::cvtColor(input, grey, CV_BGR2GRAY);
 		else     grey = input;
-		timeEnlasped = ((double)getTickCount() - tick);
-		////std::cout<< "time enlasped in bloc 1 : " << timeEnlasped << std::endl;
-		tick = (double)getTickCount();
+
 
 		//     cv::cvtColor(grey,_ssImC ,CV_GRAY2BGR); //DELETE
 
@@ -141,10 +139,6 @@ namespace aruco
 
 		cv::Mat imgToBeThresHolded = grey;
 		double ThresParam1 = _thresParam1, ThresParam2 = _thresParam2;
-		timeEnlasped = ((double)getTickCount() - tick);
-		////std::cout<< "time enlasped in bloc 2 : " << timeEnlasped << std::endl;
-		tick = (double)getTickCount();
-
 
 		//bloc 3
 		//Must the image be downsampled before continue pocessing?
@@ -162,35 +156,27 @@ namespace aruco
 			ThresParam1 /= float(red_den);
 			ThresParam2 /= float(red_den);
 		}
-		timeEnlasped = ((double)getTickCount() - tick);
-		////std::cout<< "time enlasped in bloc 3 : " << timeEnlasped << std::endl;
-		tick = (double)getTickCount();
+
 
 		//bloc 4
 		///Do threshold the image and detect contours
 		thresHold(_thresMethod, imgToBeThresHolded, thres, ThresParam1, ThresParam2);
-		timeEnlasped = ((double)getTickCount() - tick);
-		////std::cout<< "time enlasped in bloc 4 : " << timeEnlasped << std::endl;
-		tick = (double)getTickCount();
+
 		//bloc 5
 		//an erosion might be required to detect chessboard like boards
-		if (_doErosion)
+		if (_doErosion) 
 		{
+			cv::Mat thres2;
 			erode(thres, thres2, cv::Mat());
-			thres2.copyTo(thres); //vs thres=thres2;
+			thres = thres2;	//thres2.copyTo(thres); //vs 
 		}
-		timeEnlasped = ((double)getTickCount() - tick);
-		////std::cout<< "time enlasped in bloc 5 : " << timeEnlasped << std::endl;
-		tick = (double)getTickCount();
 
 
 		//bloc6
 		//find all rectangles in the thresholdes image
 		vector<MarkerCandidate > MarkerCanditates;
 		detectRectangles(thres, MarkerCanditates);
-		timeEnlasped = ((double)getTickCount() - tick);
-		////std::cout<< "time enlasped in bloc 6 : " << timeEnlasped << std::endl;
-		tick = (double)getTickCount();
+
 
 		//bloc7
 		//if the image has been downsampled, then calcualte the location of the corners in the original image
@@ -212,18 +198,16 @@ namespace aruco
 				}
 			}
 		}
-		timeEnlasped = ((double)getTickCount() - tick);
-		////std::cout<< "time enlasped in bloc 7 : " << timeEnlasped << std::endl;
-		tick = (double)getTickCount();
+
 		double tick2[30];
 		//bloc 8
 		///identify the markers
 		vector<vector<Marker> >markers_omp(omp_get_max_threads());
 		vector<vector < std::vector<cv::Point2f> > >candidates_omp(omp_get_max_threads());
+		//int quelqun = 0;
 #pragma omp parallel for
 		for (unsigned int i = 0; i<MarkerCanditates.size(); i++)
 		{
-			tick2[omp_get_thread_num()] = (double)getTickCount();
 			//Find proyective homography
 			Mat canonicalMarker;
 			bool resW = false;
@@ -232,6 +216,7 @@ namespace aruco
 			{
 				int nRotations;
 				//int id = 1;
+				//quelqun++;
 				int id = (*markerIdDetector_ptrfunc) (canonicalMarker, nRotations);
 				if (id != -1)
 				{
@@ -240,31 +225,20 @@ namespace aruco
 					markers_omp[omp_get_thread_num()].push_back(MarkerCanditates[i]);
 					markers_omp[omp_get_thread_num()].back().id = id;
 					//sort the points so that they are always in the same order no matter the camera orientation
-					std::rotate(markers_omp[omp_get_thread_num()].back().begin(), markers_omp[omp_get_thread_num()].back().begin() + 4 - nRotations, markers_omp[omp_get_thread_num()].back().end());
+					//std::rotate(markers_omp[omp_get_thread_num()].back().begin(), markers_omp[omp_get_thread_num()].back().begin() + 4 - nRotations, markers_omp[omp_get_thread_num()].back().end());
 				}
 				else
 				{
-					tick = (double)getTickCount();
-
 					int lulu = omp_get_thread_num();
-					////std::cout<< "time to calculate this shit : " << (double)getTickCount() - tick << endl;
 					candidates_omp[lulu].push_back(MarkerCanditates[i]);
 				}
 			}
-			////std::cout<< "time in for num " << omp_get_max_threads() << " is " << (double)getTickCount() - tick2[omp_get_thread_num()];
 		}
-
-		timeEnlasped = ((double)getTickCount() - tick);
-		////std::cout<< "time enlasped in bloc 8 : " <<timeEnlasped << std::endl;
-		tick = (double)getTickCount();
-
+		//cout << quelqun;
 		//bloc 9
 		//unify parallel data
 		joinVectors(markers_omp, detectedMarkers, true);
 		joinVectors(candidates_omp, _candidates, true);
-		timeEnlasped = ((double)getTickCount() - tick);
-		////std::cout<< "time enlasped in bloc 9 : " <<timeEnlasped << std::endl;
-		tick = (double)getTickCount();
 
 
 		//bloc 10
@@ -285,9 +259,7 @@ namespace aruco
 			for (unsigned int i = 0; i<detectedMarkers.size(); i++)
 				for (int c = 0; c<4; c++)     detectedMarkers[i][c] = Corners[i * 4 + c];
 		}
-		timeEnlasped = ((double)getTickCount() - tick);
-		//std::cout<< "time enlasped in bloc 10 : " << timeEnlasped << std::endl;
-		tick = (double)getTickCount();
+
 
 		//bloc 11
 		//sort by id
@@ -314,9 +286,7 @@ namespace aruco
 
 			}
 		}
-		timeEnlasped = ((double)getTickCount() - tick);
-		//std::cout<< "time enlasped in bloc 11 : " << timeEnlasped << std::endl;
-		tick = (double)getTickCount();
+
 
 		//bloc 12
 		//remove the markers marker
@@ -332,9 +302,7 @@ namespace aruco
 			for (unsigned int i = 0; i<detectedMarkers.size(); i++)
 				detectedMarkers[i].calculateExtrinsics(markerSizeMeters, camMatrix, distCoeff, setYPerpendicular);
 		}
-		timeEnlasped = ((double)getTickCount() - tick);
-		////std::cout<< "time enlasped in bloc 13 : " <<timeEnlasped << std::endl;
-		tick = (double)getTickCount();
+
 
 	}
 
@@ -362,14 +330,23 @@ namespace aruco
 		int minSize = _minSize*std::max(thresImg.cols, thresImg.rows) * 4;
 		int maxSize = _maxSize*std::max(thresImg.cols, thresImg.rows) * 4;
 		std::vector<std::vector<cv::Point> > contours2;
-		std::vector<cv::Vec4i> hierarchy2;
+		//std::vector<cv::Vec4i> hierarchy2;
 
-		thresImg.copyTo(thres2);
-		cv::findContours(thres2, contours2, hierarchy2, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
+		//------Modified by malek
+		//thresImg.copyTo(thres2);
+		//thres2 = thresImg; 
+		//------Modified by malek
+
+		//cv::findContours(thres2, contours2, hierarchy2, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
+		
+		cv::findContours(thresImg, contours2, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
+		//cv::findContours(thresImg, contours2, CV_RETR_LIST, CV_CHAIN_APPROX_TC89_L1);
+		
 		vector<Point>  approxCurve;
 		///for each contour, analyze if it is a paralelepiped likely to be the marker
 
-		for (unsigned int i = 0; i<contours2.size(); i++)
+		
+		for (unsigned int i = 0;i < contours2.size(); i++)
 		{
 
 
@@ -380,6 +357,7 @@ namespace aruco
 				approxPolyDP(contours2[i], approxCurve, double(contours2[i].size()) *0.05, true);
 				// 				drawApproxCurve(copy,approxCurve,Scalar(0,0,255));
 				//check that the poligon has 4 points
+				
 				if (approxCurve.size() == 4)
 				{
 
@@ -489,7 +467,6 @@ namespace aruco
 					reverse(OutMarkerCanditates.back().contour.begin(), OutMarkerCanditates.back().contour.end());//????
 			}
 		}
-
 	}
 
 	/************************************

@@ -86,10 +86,28 @@ void car::main(int argc, char *argv[]) {
 	double laps2 = 0;
 	float total = 0;
 
-	while (arduin->IsConnected() || DISABLE_ARDUINO) {
+
+	int cpt;
+	DWORD deltaTime = 0;
+	DWORD lastTime = 0;
+	cpt = -1;
+	
+	time_t start, end;
+	int counter = 0;
+	double sec;
+	double fps;
+
+	while (true) {
+		
+		// fps counter begin ------------------------------------
+		if (counter == 0){
+			time(&start);
+		}
+		// fps counter end ---------------------------------------
 
 		//Calculate processing time
 		index++;
+
 		laps = (((double)getTickCount() - tick) / getTickFrequency() * 1000);
 		total += (float)laps;
 		//std::cout << "time enlapsed : " << laps << " ms" << " (avg : " << total / index << ")" << std::endl;
@@ -110,9 +128,11 @@ void car::main(int argc, char *argv[]) {
 
 		//Send command on the serial bus
 		//std::cout << "Steering : " << steering << ", Throttle : " << throttle << std::endl;
-		if (index == 1) {
-			char init = 255;
-			(arduin)->WriteData(&init, 1);
+		if (!DISABLE_ARDUINO) {
+			if (index == 1) {
+				char init = 255;
+				(arduin)->WriteData(&init, 1);
+			}
 		}
 
 		if (!STOP_THE_CAR)
@@ -129,6 +149,19 @@ void car::main(int argc, char *argv[]) {
 
 		//write the image
 		writeImage();
+
+		// fps counter begin -------------------------------------
+		time(&end);
+		counter++;
+		sec = difftime(end, start);
+		fps = counter / sec;
+		if (counter > 30)
+			printf("%.2f fps\n", fps);
+		// overflow protection
+		if (counter == (INT_MAX - 1000))
+			counter = 0;
+		// fps counter end --------------------------------------
+		
 	}
 
 	printf("ERROR ! Arduino is disconnected ! \n");
@@ -136,30 +169,32 @@ void car::main(int argc, char *argv[]) {
 }
 
 void sendCommand(Serial* arduin, int steering, int throttle) {
-	const int nbByte = 2;
+	if (!DISABLE_ARDUINO) {
+		const int nbByte = 2;
+		//Initialazing the buffer
+		char bufferW[nbByte] = { (char)(steering), (char)(throttle) };
+		if (!(arduin)->WriteData(bufferW, nbByte)) {
+			if (!DISABLE_ARDUINO_CHECK)
+				std::cout << "Serial write fail !" << std::endl;
+		}
 
-	//Initialazing the buffer
-	char bufferW[nbByte] = { (char)(steering), (char)(throttle) };
-	if (!(arduin)->WriteData(bufferW, nbByte)) {
-		if (!DISABLE_ARDUINO_CHECK)
-			std::cout << "Serial write fail !" << std::endl;
+		if (DEBUG_MAIN) printf("Bytes Written : steering, throttle : %d, %d\n", bufferW[0], bufferW[1]);
+
+		if (!DISABLE_ARDUINO_CHECK) {
+
+			//We verify if the bytes written are the ones we sent
+			char bufferR[nbByte] = { 0, 0 };
+			int readResult = 0;
+			for (int i = 0; i < nbByte; i++)
+				while ((readResult = (arduin)->ReadData(bufferR + i, 1)) == -1);
+
+			if (DEBUG_MAIN) printf("Bytes Read : %d, %d\n", bufferR[0], bufferR[1]);
+
+			if (!strcmp(bufferW, bufferR))
+				printf("ERROR ! (send_command) The bytes we sent doesn't match with the on we have written ! \n");
+		}
 	}
-
-	if (DEBUG_MAIN) printf("Bytes Written : steering, throttle : %d, %d\n", bufferW[0], bufferW[1]);
-
-	if (! DISABLE_ARDUINO_CHECK) {
 	
-		//We verify if the bytes written are the ones we sent
-		char bufferR[nbByte] = { 0, 0 };
-		int readResult = 0;
-		for (int i = 0; i < nbByte; i++)
-			while ((readResult = (arduin)->ReadData(bufferR+i, 1)) == -1);
-
-		if (DEBUG_MAIN) printf("Bytes Read : %d, %d\n", bufferR[0], bufferR[1]);
-
-		if (!strcmp(bufferW, bufferR))
-			printf("ERROR ! (send_command) The bytes we sent doesn't match with the on we have written ! \n");
-	}
 }
 
 void writeSerial(Serial* s, char* buffer, unsigned int n) {
@@ -180,24 +215,24 @@ void readSerial(Serial* s, char* buffer, unsigned n) {
 }
 
 void initArduino() {
-	arduin = new Serial(serial_port);
-	
+	if (!DISABLE_ARDUINO) {
+		arduin = new Serial(serial_port);
 
-	if (arduin->IsConnected()) {
-		std::cout << "Connection to the arduino OK" << std::endl;
+		if (arduin->IsConnected()) {
+			std::cout << "Connection to the arduino OK" << std::endl;
 
-		//Vider le buffer en lecture, pour verification des données ecrites dans le port serial
-		int readResult;
-		char tmp[1];
-		//while ((readResult = (arduin)->ReadData(tmp, 1)) != -1)
-		//	if (DEBUG_MAIN_MAIN) printf("ARDUINO INIT Bytes Read : readResult(%d), %d \n", readResult, tmp[0]);
+			//Vider le buffer en lecture, pour verification des données ecrites dans le port serial
+			int readResult;
+			char tmp[1];
+			//while ((readResult = (arduin)->ReadData(tmp, 1)) != -1)
+			//	if (DEBUG_MAIN_MAIN) printf("ARDUINO INIT Bytes Read : readResult(%d), %d \n", readResult, tmp[0]);
 
-		//For leaving the active looping in arduino setup
-		//unsigned int emergencyTime = 1000;
-		//if (DEBUG_MAIN_MAIN) printf("EmergencyTime : %02x\n", (char*) emergencyTime);
-		//writeSerial(arduin, (char*)emergencyTime, 4);
+			//For leaving the active looping in arduino setup
+			//unsigned int emergencyTime = 1000;
+			//if (DEBUG_MAIN_MAIN) printf("EmergencyTime : %02x\n", (char*) emergencyTime);
+			//writeSerial(arduin, (char*)emergencyTime, 4);
+		}
 	}
-
 }
 
 void my_message_callback(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message)
@@ -217,23 +252,25 @@ void my_message_callback(struct mosquitto *mosq, void *userdata, const struct mo
 }
 
 void initMQTT() {
-	std::cout << "Connecting to " << mqtt_host << std::endl;
-	sender = new mqtt_sender("sender", mqtt_host, 1883);
-	receiver = new mqtt_receiver("receiver", mqtt_host, 1883);
-	receiver->set_callback(my_message_callback);
-	//receiver->envoie();
-	//sender->subscribe_init();
-	//sender->set_callback(my_message_callback);
+	if (!DISABLE_MQTT) {
+		std::cout << "Connecting to " << mqtt_host << std::endl;
+		sender = new mqtt_sender("sender_main", mqtt_host, 1883);
+		receiver = new mqtt_receiver("receiver_main", mqtt_host, 1883);
+		receiver->set_callback(my_message_callback);
+		//receiver->envoie();
+		//sender->subscribe_init();
+		//sender->set_callback(my_message_callback);
+	}
 }
 
 void writeImage() {
-	if (! STOP_THE_CAMERA) {
+	if (! STOP_THE_CAMERA && ! DISABLE_VIDEO_WEB) {
 		vector<unsigned char> buffer;
 		vector<int> compression_params;
 		compression_params.push_back(CV_IMWRITE_JPEG_QUALITY);
 		compression_params.push_back(9);
 
-		if (!cv::imwrite("../../../camera.jpeg", TheInputImageCopy, compression_params)){
+		if (!cv::imwrite("../../../camera.jpeg", TheInputImage, compression_params)){
 			printf("Image encoding failed\n");
 		}
 
@@ -278,48 +315,54 @@ void initAruco() {
 	MDetector.setThresholdParams(21, 7);
 	MDetector.setCornerRefinementMethod(aruco::MarkerDetector::LINES);
 	MDetector.setWarpSize((D[0].n() + 2) * 8);
-	MDetector.setMinMaxSize(0.005f, 0.5f);
+	MDetector.setMinMaxSize(MIN_QRCODE_DISTANCE_MEAN, 0.5f);
 
-	cv::namedWindow("in", 1);
+	if (!DISABLE_VIDEO_SCREEN)
+		cv::namedWindow("in", 1);
 }
 
 void sendMetrics(int steering, int throttle, double laps, double avg, AccelerometerSensor* accelerometer) {
-	sender->publish_to_topic(TOPIC_STEER, (char*)std::to_string(steering).c_str());
-	sender->publish_to_topic(TOPIC_THROT, (char*)std::to_string(throttle).c_str());
-	sender->publish_to_topic(TOPIC_LAPS, (char*)std::to_string(laps).c_str());
-	sender->publish_to_topic(TOPIC_AVG, (char*)std::to_string(avg).c_str());
-	sender->publish_to_topic(TOPIC_ACCELEROMETER, (char*)(
-		(std::to_string(accelerometer->getX()) + ":"
-		+ std::to_string(accelerometer->getY()) + ":"
-		+ std::to_string(accelerometer->getZ())).c_str()
-		));
-	sender->publish_to_topic(TOPIC_NB_MARKERS, (char*)std::to_string(TheMarkers.size()).c_str());
-	
-	//find the closest marker
-	float d = -1;
-	for (std::vector<aruco::Marker>::iterator it = TheMarkers.begin(); it != TheMarkers.end(); it++) {
-		if (d == -1) {
-			d = it->Tvec.ptr<float>(0)[2];
-		}
-		else if (it->Tvec.ptr<float>(0)[2] < d) {
-			d = it->Tvec.ptr<float>(0)[2];
-		}
-	}
+	if (!DISABLE_MQTT) {
+		sender->publish_to_topic(TOPIC_STEER, (char*)std::to_string(steering).c_str());
+		sender->publish_to_topic(TOPIC_THROT, (char*)std::to_string(throttle).c_str());
+		sender->publish_to_topic(TOPIC_LAPS, (char*)std::to_string(laps).c_str());
+		sender->publish_to_topic(TOPIC_AVG, (char*)std::to_string(avg).c_str());
+		sender->publish_to_topic(TOPIC_ACCELEROMETER, (char*)(
+			(std::to_string(accelerometer->getX()) + ":"
+			+ std::to_string(accelerometer->getY()) + ":"
+			+ std::to_string(accelerometer->getZ())).c_str()
+			));
+		sender->publish_to_topic(TOPIC_NB_MARKERS, (char*)std::to_string(TheMarkers.size()).c_str());
 
-	sender->publish_to_topic(TOPIC_CLOSEST, (char*)std::to_string(d).c_str());
+		//find the closest marker
+		float d = -1;
+		for (std::vector<aruco::Marker>::iterator it = TheMarkers.begin(); it != TheMarkers.end(); it++) {
+			if (d == -1) {
+				d = it->Tvec.ptr<float>(0)[2];
+			}
+			else if (it->Tvec.ptr<float>(0)[2] < d) {
+				d = it->Tvec.ptr<float>(0)[2];
+			}
+		}
+
+		sender->publish_to_topic(TOPIC_CLOSEST, (char*)std::to_string(d).c_str());
+	}
 }
 
 void updateView() {
 	//print marker info and draw the markers in image
-	TheInputImage.copyTo(TheInputImageCopy);
+	if (!DISABLE_VIDEO_SCREEN) {
+		//TheInputImage.copyTo(TheInputImageCopy);
+		TheInputImageCopy = TheInputImage;
 
-
-	for (unsigned int i = 0; i < TheMarkers.size(); i++) {
-		TheMarkers[i].draw(TheInputImageCopy, Scalar(0, 0, 255), 1);
+		for (unsigned int i = 0; i < TheMarkers.size(); i++) {
+			TheMarkers[i].draw(TheInputImageCopy, Scalar(0, 0, 255), 1);
+		}
+		cv::imshow("in", TheInputImageCopy);
+		cv::waitKey(10);
 	}
-	cv::imshow("in", TheInputImageCopy);
-	cv::waitKey(10);
 }
+
 
 void usage() {
 	std::cout << "Usage : dictionary.yml intrinsics.yml marker_size MQTT_host serial_port run_mode <AI params>" << std::endl;

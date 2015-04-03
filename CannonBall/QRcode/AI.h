@@ -2,7 +2,7 @@
 #include <vector>
 #include "aruco.h"
 #include"marker.h"
-
+#define AI_DEBUG 0
 /**
  * Abstract which represent an IA
  * @author Thibaut Coutelou, Benjamin Mugnier, Guillaume Perrin

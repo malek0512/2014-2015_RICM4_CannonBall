@@ -47,7 +47,8 @@ void AIRabbit::getCommand(vector<aruco::Marker>* TheMarkers, int* steering, int*
 		if (rabbit.lastTimeSeen == 0) {
 			*steering = 90;
 			*throttle = 91;
-			cout << "Idle" << endl;
+			if (AI_DEBUG)
+				cout << "Idle" << endl;
 			return;
 		}
 	}
@@ -75,8 +76,10 @@ void AIRabbit::getCommand(vector<aruco::Marker>* TheMarkers, int* steering, int*
 			} else {
 				*throttle = 91;
 			}
-			cout << "Update" << endl;
-			cout << "a:" << ang << " d:" << d << endl;
+			if (AI_DEBUG) {
+				cout << "Update" << endl;
+				cout << "a:" << ang << " d:" << d << endl;
+			}
 			return;
 		}
 	}
@@ -93,13 +96,15 @@ void AIRabbit::getCommand(vector<aruco::Marker>* TheMarkers, int* steering, int*
 				(*steering) -= 1;
 			}
 			*throttle = 88;
-			cout << "Keep going" << endl;
+			if (AI_DEBUG)
+				cout << "Keep going" << endl;
 			return;
 		}
 	}
 
 	//*steering = 90;
 	*throttle = 91;
-	cout << "Idle" << endl;
+	if (AI_DEBUG)
+		cout << "Idle" << endl;
 }
 
