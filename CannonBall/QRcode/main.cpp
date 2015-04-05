@@ -1,6 +1,6 @@
 #include "car.h"
 #include "test_arduino.h"
-//#include "simulator.h"
+#include "simulator.h"
 
 
 int main(int argc, char *argv[]) {
@@ -11,8 +11,10 @@ int main(int argc, char *argv[]) {
 	else 
 	*/
 	
-	(new car())->main(argc, argv);
-	//(new simulator())->main(argc, argv);
+	if (false) 
+		(new car())->main(argc, argv);
+	else 
+		(new simulator())->main(argc, argv);
 	
 	//TestArduino(argc, argv);
 	return 0;

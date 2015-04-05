@@ -274,8 +274,10 @@ void writeImage() {
 			printf("Image encoding failed\n");
 		}
 
-		//notify the nodejs server
-		sender->publish_to_topic(TOPIC_CAMERA_IMAGE, (char*) "refresh");
+		if (!DISABLE_MQTT) {
+			//notify the nodejs server
+			sender->publish_to_topic(TOPIC_CAMERA_IMAGE, (char*) "refresh");
+		}
 	}
 }
 
@@ -409,22 +411,25 @@ void readParams(int argc, char *argv[]) {
 }
 
 void choose_run_mode(AI **ia, int argc, char *argv[]) {
+	char* mode;
 	if (run_mode == RABBIT) {
 		*ia = new AIRabbit(argc, argv);
-		sender->publish_to_topic(TOPIC_MODE, "Rabbit");
+		mode = "Rabbit" ;
 	}
 	else if (run_mode == CANNON) {
 		*ia = new AICannonball(argc, argv);
-		sender->publish_to_topic(TOPIC_MODE, "CannonBall");
+		mode = "CannonBall";
 	}
 	else if (run_mode == SHEEP)
 	{
 		*ia = new AISheep(argc, argv);
-		sender->publish_to_topic(TOPIC_MODE, "Sheep");
+		mode = "Sheep";
 	}
 	else {
 		*ia = new AImap();
-		sender->publish_to_topic(TOPIC_MODE, "Map");
+		mode = "Map";
 	}
+	if (!DISABLE_MQTT)
+		sender->publish_to_topic(TOPIC_MODE, (char*)mode);
 }
 

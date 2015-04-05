@@ -1,6 +1,7 @@
 #include "simulator.h"
 #include <stdio.h>
 #include "AISheep.h"
+#include "AIRabbit.h"
 #include <string.h>
 
 bool DEBUG_MAIN	= true;
@@ -17,7 +18,7 @@ Recuperer les intruction pour les réemettre a au simulateur
 simulator::simulator()
 {
 	initMQTT();
-	//automata = new AISheep();
+	//automata = new AIRabbit();
 }
 
 
@@ -30,7 +31,7 @@ simulator::~simulator()
 
 void simulator::main(int argc, char* argv[]) 
 {
-	automata = new AISheep(argc, argv);
+	automata = new AIRabbit(argc, argv);
 }
 
 //Méthodes intermédiaires
