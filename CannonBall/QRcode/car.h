@@ -22,12 +22,12 @@ using namespace aruco;
 #define THE_VIDEO_CAPTURER			0 //Malek PC
 //#define THE_VIDEO_CAPTURER			2 //Tablette 
 #define DISABLE_ARDUINO				1
-#define DISABLE_VIDEO_WEB			0 //consomme environ 10 fps : on est 24 sans video_screen
+#define DISABLE_VIDEO_WEB			1 //consomme environ 10 fps : on est 24 sans video_screen
 #define DISABLE_MQTT				1
 #define DISABLE_ARDUINO_CHECK		1 //Let it disable and it should work 
 #define DEBUG_MAIN					0
 #define DEBUG						0
-#define DISABLE_VIDEO_SCREEN		0 //consomme environ 10 fps
+#define DISABLE_VIDEO_SCREEN		1 //consomme environ 10 fps
 
 //Optmisation possible pour la distance de Qrcode high permet un meilleur fps, mais reduit la distance du qrcode
 #define MIN_QRCODE_DISTANCE_MEAN 0.03f

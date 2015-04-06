@@ -160,7 +160,18 @@ namespace aruco
 
 		//bloc 4
 		///Do threshold the image and detect contours
-		thresHold(_thresMethod, imgToBeThresHolded, thres, ThresParam1, ThresParam2);
+		//thresHold(_thresMethod, imgToBeThresHolded, thres, ThresParam1, ThresParam2);
+		thresHold(CANNY, imgToBeThresHolded, thres, ThresParam1, ThresParam2);
+
+		//
+
+		//print marker info and draw the markers in image
+		if (false) {
+			//TheInputImage.copyTo(TheInputImageCopy);
+			cv::Mat TheInputImageCopy = thres;
+			cv::imshow("in", TheInputImageCopy);
+			cv::waitKey(10);
+		}
 
 		//bloc 5
 		//an erosion might be required to detect chessboard like boards
@@ -340,7 +351,7 @@ namespace aruco
 		//cv::findContours(thres2, contours2, hierarchy2, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
 		
 		cv::findContours(thresImg, contours2, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
-		//cv::findContours(thresImg, contours2, CV_RETR_LIST, CV_CHAIN_APPROX_TC89_L1);
+		//cv::findContours(thresImg, contours2, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
 		
 		vector<Point>  approxCurve;
 		///for each contour, analyze if it is a paralelepiped likely to be the marker
@@ -352,6 +363,7 @@ namespace aruco
 
 			//check it is a possible element by first checking is has enough points
 			if (minSize< contours2[i].size() && contours2[i].size()<maxSize)
+			//if (std::fabs(cv::contourArea(contours2[i])) < 50)
 			{
 				//approximate to a poligon
 				approxPolyDP(contours2[i], approxCurve, double(contours2[i].size()) *0.05, true);
@@ -500,10 +512,10 @@ namespace aruco
 			//However, some times there are small holes in the marker contour that makes
 			//the contour detector not to find it properly
 			//if there is a missing pixel
-			cv::Canny(grey, out, 10, 220);
+			cv::Canny(grey, out, 150, 300);
 			//I've tried a closing but it add many more points that some
 			//times makes this even worse
-			// 			  Mat aux;
+			//		  Mat aux;
 			// 			  cv::morphologyEx(thres,aux,MORPH_CLOSE,Mat());
 			// 			  out=aux;
 		}
