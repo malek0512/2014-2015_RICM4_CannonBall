@@ -11,7 +11,7 @@ int main(int argc, char *argv[]) {
 	else 
 	*/
 	
-	if (false) 
+	if (true) 
 		(new car())->main(argc, argv);
 	else 
 		(new simulator())->main(argc, argv);

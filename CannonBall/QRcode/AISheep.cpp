@@ -12,6 +12,7 @@
 #include "Windows.h"
 #include <iostream>
 #include <Windows.h>
+#include <stdio.h>
 
 using namespace aruco;
 	
@@ -25,7 +26,7 @@ AISheep::AISheep(int argc, char *argv[]) {
 	//initialisation des variables
 	idle = INIT;
 	deltaTime = -1;
-	
+	idCurrentAction = -1;
 	//parse du fichier
 	std::list<std::string> tmp = AISheep::lexer(argv[0]);
 
@@ -55,25 +56,32 @@ std::list<std::string> AISheep::lexer(std::string filepath)
 		//met a jour istoken pour next
 		{
 			int i = 0;
-			while (i<std::strlen(tokenlist) && tokenlist[i] != charCourant)
+			while (i < std::strlen(tokenlist) && tokenlist[i] != charCourant)
 			{
 				i++;
 			}
 			if (tokenlist[i] == charCourant)
-				istoken = true;
-			else
-				istoken = false;
+			{
+				string nextToken;
+				nextToken += charCourant;
+				tokenExtracted.push_back(nextToken);
+				continue;
+			}
 		}
 		string nextToken;
-		nextToken += charCourant;
+		//nextToken += charCourant;
 		//si on a pas un token, on recupere autant de charactere alpha num que possible
-		while (!ifs.eof() && isalnum(charCourant))
+		if (isalnum(charCourant))
 		{
-			charCourant = ifs.get();
-			nextToken += charCourant;
+				while (!ifs.eof() && isalnum(charCourant))
+				{
+					nextToken += charCourant;
+					charCourant = ifs.get();
+					
+				}
+			//on push le token lu
+			tokenExtracted.push_back(nextToken);
 		}
-		//on push le token lu
-		tokenExtracted.push_back(nextToken);
 	}
 	return tokenExtracted;
 }
@@ -84,7 +92,7 @@ void AISheep::parse(std::list<std::string> tokens)
 	int _DValue_throttle = 91; //valeur par defaut de la vitesse
 	int _DValue_steering = 90; //valeur par defaut de l'orientation
 	int _DValue_time = 1000; //valeur par defaut du temps passé dans une action
-	std::list<std::string>::iterator i;
+	std::list<std::string>::iterator i = tokens.begin();
 	while (i !=  tokens.end()) {
 		//lecture de l'action
 		int id;
@@ -96,7 +104,7 @@ void AISheep::parse(std::list<std::string> tokens)
 			
 			//incrementation
 			i++;
-			if(i != tokens.end())
+			if(i == tokens.end())
 				throw 0;
 
 			//lecture de l'id
@@ -107,7 +115,7 @@ void AISheep::parse(std::list<std::string> tokens)
 			
 			//incrementation
 			i++;
-			if(i != tokens.end())
+			if(i == tokens.end())
 				throw 0;
 						
 			// lecture de token
@@ -115,7 +123,7 @@ void AISheep::parse(std::list<std::string> tokens)
 				throw 0;
 			//incrementation
 			i++;
-			if(i != tokens.end())
+			if(i == tokens.end())
 				throw 0;
 
 		}
@@ -133,7 +141,7 @@ void AISheep::parse(std::list<std::string> tokens)
 			{
 				//incrementation
 				i++;
-				if(i != tokens.end())
+				if(i == tokens.end())
 					throw 0;
 				
 				if(*i == "/")
@@ -147,7 +155,7 @@ void AISheep::parse(std::list<std::string> tokens)
 
 					//incrementation
 					i++;
-					if(i != tokens.end())
+					if(i == tokens.end())
 						throw 0;
 					continue;
 				}
@@ -157,7 +165,7 @@ void AISheep::parse(std::list<std::string> tokens)
 				
 				//incrementation
 				i++;
-				if(i != tokens.end())
+				if(i == tokens.end())
 					throw 0;
 
 				// lecture de token 
@@ -166,7 +174,7 @@ void AISheep::parse(std::list<std::string> tokens)
 				
 				//incrementation
 				i++;
-				if(i != tokens.end())
+				if(i == tokens.end())
 					throw 0;
 
 				//lecture de la valeur
@@ -178,7 +186,28 @@ void AISheep::parse(std::list<std::string> tokens)
 				
 				//on enregistre les informations dans param
 				if (name_param.compare("speed") == 0)
-					param.throttle = valeur_param;
+				{
+					switch (valeur_param)
+					{
+					case 0:
+						param.throttle = 91; break;
+
+					case 1:
+						param.throttle = 90; break;
+
+					case 2:
+						param.throttle = 89; break;
+
+					case 3:
+						param.throttle = 88; break;
+
+					case 4:
+						param.throttle = 86; break;
+
+					default:
+						param.throttle = 86; break;
+					}
+				}
 				else if (name_param.compare("orientation") == 0)
 					param.steering = valeur_param;
 				else if (name_param.compare("time") == 0)
@@ -188,8 +217,6 @@ void AISheep::parse(std::list<std::string> tokens)
 				
 				//incrementation
 				i++;
-				if(i != tokens.end())
-					throw 0;
 			}
 
 		}
@@ -204,7 +231,7 @@ void AISheep::getCommand(vector<aruco::Marker>* TheMarkers, int* steering, int* 
 	//initialisation du vehicule
 	if (deltaTime == -1)
 	{
-		*throttle = 89;
+		*throttle = 91;
 		*steering = 90;
 		deltaTime = 0;
 	}
@@ -212,14 +239,16 @@ void AISheep::getCommand(vector<aruco::Marker>* TheMarkers, int* steering, int* 
 	else
 	{
 		//cherche un qrCode
-		float distMinRequire = 3; //distance minimal necessaire pour accepter de faire le QrCode vue
+		float distMinRequire = -1; //distance minimal necessaire pour accepter de faire le QrCode vue
 		float minDist = distMinRequire;
 
 		//recherche des qrCode
 		int id = -1;
 		{
-			for (std::vector<Marker>::iterator it = (*TheMarkers).begin(); it != (*TheMarkers).end(); it++) {
-				if (minDist > it->Tvec.ptr<float>(0)[2])
+			for (std::vector<Marker>::iterator it = (*TheMarkers).begin(); it != (*TheMarkers).end(); ++it) {
+				if (minDist == -1)
+					minDist = it->Tvec.ptr<float>(0)[2];
+				if (minDist >= it->Tvec.ptr<float>(0)[2])
 				{
 					minDist = it->Tvec.ptr<float>(0)[2];
 					id = it->id;
@@ -228,12 +257,17 @@ void AISheep::getCommand(vector<aruco::Marker>* TheMarkers, int* steering, int* 
 			}
 		}
 		
+		printf("idCurrent Action : %d       ###     id : %d \n", idCurrentAction, id);
+		
+		//no action ever seen
+		if ((*TheMarkers).size() == 0 && idCurrentAction == -1)
+			return;
+
 		//Une nouvelle action est a traité
 		if( (idCurrentAction == -1 && id != -1) 
 			||(idCurrentAction != -1 && id != -1 && idCurrentAction != id))
 		{
 			deltaTime = 0;
-			idCurrentAction = id;
 			
 			itCurrentAction  = tableIDAction.begin();
 			while (itCurrentAction != tableIDAction.end() && itCurrentAction ->first != id)
@@ -241,9 +275,13 @@ void AISheep::getCommand(vector<aruco::Marker>* TheMarkers, int* steering, int* 
 				itCurrentAction ++;
 			}
 			
-			*steering = itCurrentAction->second.steering;
-			*throttle = itCurrentAction->second.throttle;
-			timeOutAction = itCurrentAction->second.time;
+			if (itCurrentAction != tableIDAction.end())
+			{
+				idCurrentAction = id;
+				*steering = itCurrentAction->second.steering;
+				*throttle = itCurrentAction->second.throttle;
+				timeOutAction = itCurrentAction->second.time;
+			}
 			
 			return;
 		}
@@ -251,7 +289,7 @@ void AISheep::getCommand(vector<aruco::Marker>* TheMarkers, int* steering, int* 
 		//On suit le cours normal de l'action courante)
 		if(idCurrentAction != -1 && id == -1)
 		{
-			deltaTime += (double) GetTickCount();
+			deltaTime++;
 			if (deltaTime > timeOutAction)
 			{
 				itCurrentAction++;
@@ -266,10 +304,9 @@ void AISheep::getCommand(vector<aruco::Marker>* TheMarkers, int* steering, int* 
 				{
 					*throttle = 91;
 					*steering = 90;
-					idle = END;
+					idCurrentAction = -1;
 				}
-			}
-			
+			}			
 			return;
 		}
 	}

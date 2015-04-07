@@ -120,12 +120,12 @@ void car::main(int argc, char *argv[]) {
 
 		tick2 = (double)getTickCount();
 		//Detection of markers in the image passed
-		//MDetector.detect(TheInputImage, TheMarkers, TheCameraParameters, TheMarkerSize);
+		MDetector.detect(TheInputImage, TheMarkers, TheCameraParameters, TheMarkerSize);
 		laps2 = (((double)getTickCount() - tick2) / getTickFrequency() * 1000);
 		//std::cout << "time enlasped in detect : " << laps2 << std::endl;
 
 		//Get steering and throttle from AI
-		//ai->getCommand(&TheMarkers, &steering, &throttle, TheInputImage.size().width);
+		ai->getCommand(&TheMarkers, &steering, &throttle, TheInputImage.size().width);
 
 		//Send command on the serial bus
 		//std::cout << "Steering : " << steering << ", Throttle : " << throttle << std::endl;

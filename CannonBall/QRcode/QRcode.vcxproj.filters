@@ -56,9 +56,6 @@
     <ClCompile Include="highlyreliablemarkers.cpp">
       <Filter>Source Files\aruco</Filter>
     </ClCompile>
-    <ClCompile Include="AI.cpp">
-      <Filter>Source Files\ai</Filter>
-    </ClCompile>
     <ClCompile Include="AIcannonball.cpp">
       <Filter>Source Files\ai</Filter>
     </ClCompile>
@@ -94,6 +91,9 @@
     </ClCompile>
     <ClCompile Include="car.cpp">
       <Filter>Source Files\main</Filter>
+    </ClCompile>
+    <ClCompile Include="AI.cpp">
+      <Filter>Source Files\ai</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
