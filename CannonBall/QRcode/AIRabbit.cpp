@@ -14,10 +14,78 @@ frame(0)
 		Sleep(10000);
 		exit(-1);
 	}
+	idlastSeen = -1;
 	target = atoi(argv[0]);
 	std::cout << "Following " << target << endl;
 }
 
+void AIRabbit::getCommandSimulateur(int id, float dist, float angle ,int* steering, int* throttle) {
+
+	/*
+	* Update our map
+	*/
+	frame++;
+
+
+	/*
+	* No marker ever seen
+	*/
+	{
+		if (id == -1) {
+			*steering = 90;
+			*throttle = 91;
+			if (AI_DEBUG)
+				cout << "Idle" << endl;
+			return;
+		}
+	}
+	
+	/*
+	* Best case : the marker is in view
+	*/
+	{
+		if (id == idlastSeen) {
+			idLastFrame = frame;
+			float ang = angle;
+			float d = dist;
+			if (d > 0.0) {
+				*throttle = 86;
+				*steering = ang * 25 + 90;
+			}
+			else {
+				*throttle = 91;
+			}
+			if (AI_DEBUG) {
+				cout << "Update" << endl;
+				cout << "a:" << ang << " d:" << d << endl;
+			}
+			return;
+		}
+	}
+
+	/*
+	* Marker seen less than 3 frames ago
+	*/
+	{
+		if (id != idlastSeen && frame - idLastFrame < 10) {
+			if (*steering < 90) {
+				(*steering) += 1;
+			}
+			if (*steering > 90) {
+				(*steering) -= 1;
+			}
+			*throttle = 88;
+			if (AI_DEBUG)
+				cout << "Keep going" << endl;
+			return;
+		}
+	}
+
+	//*steering = 90;
+	*throttle = 91;
+	if (AI_DEBUG)
+		cout << "Idle" << endl;
+}
 
 AIRabbit::~AIRabbit()
 {
@@ -62,15 +130,15 @@ void AIRabbit::getCommand(vector<aruco::Marker>* TheMarkers, int* steering, int*
 			//float ang = ((atan(xrel) * 180) / 3.1415) * factor + 90;
 			float ang = (atan(xrel) * 180) / 3.1415;
 
-			if (d > 2.0) {
+			if (d > 200.0) {
 				*throttle = 86;
 				*steering = ang * 0.25 + 90;
 			}
-			else if (d > 1.0) {
+			else if (d > 150.0) {
 				*throttle = 88;
 				*steering = ang * 0.75 + 90;
 			}
-			else if (d > 0.5) {
+			else if (d > 100.0) {
 				*throttle = 89;
 				*steering = ang * 0.75 + 90;
 			} else {

@@ -1,0 +1,65 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+
+<Run mode="Rabbit" />
+
+<Optimisations>
+	<DisableMicroController 		value="1" />
+	<DisableMicroControllerCheck 	value="1" />
+	<DisableMosquitto		 		value="1" />
+	<DisableSimulator				value="1" />
+	<DisableDebug					value="0" />
+	<DisableMetrics					value="1" />
+	<DisableFps 					value="0" />
+	<DisableVideoServer		 		value="1" />
+	<DisableVideoScreen 			value="0" />
+		
+	<MinQrcodeDistance value="0.001f" 		low="0.001f" mean="0.03f" high="0.05f" />	<!-- min_qrcode_distance -->
+</Optimisations>
+
+<Arguments>
+	<Argument mode="default">
+		<Mosquitto host="localhost" port="1883" />
+		<MicroController serial="COM3" />
+		<Aruco dictionary="dict.yml" marker_size="4" />
+		<Opencv camera="camparam.yml" video_capurer="0"/> <!-- video_capturer must be set to 2 on the Lenovo tablet -->
+	</Argument>	
+
+	<Argument mode="Rabbit">
+		<Mosquitto host="localhost" port="1883" />
+		<MicroController serial="COM3" />
+		<Aruco dictionary="dict.yml" marker_size="4" qrcode_id="20259" />
+		<Opencv camera="camparam.yml" video_capurer="0"/>
+	</Argument>	
+
+	<Argument mode="Cannon">
+		<Mosquitto host="default" port="default" />
+		<MicroController serial="Argument[@mode=default]" />
+		<Aruco dictionary="dict.yml" marker_size="4" file="cannonball.doors" />
+		<Opencv camera="camparam.yml" video_capurer="0"/> <!-- video_capturer must be set to 2 on the Lenovo tablet -->
+	</Argument>	
+	
+	<Argument mode="Sheep">
+		<Mosquitto host="localhost" port="1883" />
+		<MicroController serial="COM3" />
+		<Aruco dictionary="dict.yml" marker_size="4" qrcode_id="20259" />
+		<Opencv camera="camparam.yml" video_capurer="0"/>
+		
+		<Config file="sheep.txt" /> <!-- for now let keep it this way. After it should be better to directly read the arguments here -->
+	</Argument>	
+
+	<Argument mode="Simulator">
+		<Mosquitto host="localhost" port="1883" />
+		<Aruco dictionary="dict.yml" marker_size="4" qrcode_id="20259" />
+		<Opencv camera="camparam.yml" video_capurer="0"/>
+	</Argument>	
+</Arguments>
+
+<!-- 
+	std::cout << "dictionary.yml : Dictinoary of markers used" << std::endl;
+	std::cout << "intrinsics.yml : Camera parameters (calibration)" << std::endl;
+	std::cout << "marker_size : size of the markers in meters" << std::endl;
+	std::cout << "MQTT_host : address of the MQTT broker" << std::endl;
+	std::cout << "serial_port : COM port of the arduino (ex : 'COM5')" << std::endl;
+	std::cout << "run mode : either 'rabbit' (follow the marker) or 'cannon' (race)" << std::endl;
+	std::cout << "AI params : parameters of the artificial intelligence" << std::endl;
+-->

@@ -15,21 +15,18 @@
     <Filter Include="Source Files\ai">
       <UniqueIdentifier>{d678b8ce-cce3-475d-80f9-234824bbc497}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\server">
+    <Filter Include="Source Files\xml_parser">
+      <UniqueIdentifier>{5b8079ff-4ee0-4485-80de-98ca1d25649d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\mosquitto">
       <UniqueIdentifier>{9d8c56e0-b25f-4cb5-8b34-8173021ec2aa}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\main">
+    <Filter Include="Source Files\mains">
       <UniqueIdentifier>{f4913806-9cee-4fdd-9dd3-575637e271b3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Serial.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="subpixelcorner.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ar_omp.cpp">
@@ -72,28 +69,37 @@
       <Filter>Source Files\aruco</Filter>
     </ClCompile>
     <ClCompile Include="mqtt_sender.cpp">
-      <Filter>Source Files\server</Filter>
-    </ClCompile>
-    <ClCompile Include="AccelerometerSensor.cpp">
-      <Filter>Source Files\server</Filter>
+      <Filter>Source Files\mosquitto</Filter>
     </ClCompile>
     <ClCompile Include="test_arduino.cpp">
-      <Filter>Source Files\main</Filter>
+      <Filter>Source Files\mains</Filter>
     </ClCompile>
     <ClCompile Include="AISheep.cpp">
       <Filter>Source Files\ai</Filter>
     </ClCompile>
     <ClCompile Include="simulator.cpp">
-      <Filter>Source Files\main</Filter>
+      <Filter>Source Files\mains</Filter>
     </ClCompile>
     <ClCompile Include="mqtt_receiver.cpp">
-      <Filter>Source Files\server</Filter>
+      <Filter>Source Files\mosquitto</Filter>
     </ClCompile>
     <ClCompile Include="car.cpp">
-      <Filter>Source Files\main</Filter>
+      <Filter>Source Files\mains</Filter>
     </ClCompile>
     <ClCompile Include="AI.cpp">
       <Filter>Source Files\ai</Filter>
+    </ClCompile>
+    <ClCompile Include="pugixml.cpp">
+      <Filter>Source Files\xml_parser</Filter>
+    </ClCompile>
+    <ClCompile Include="subpixelcorner.cpp">
+      <Filter>Source Files\aruco</Filter>
+    </ClCompile>
+    <ClCompile Include="AccelerometerSensor.cpp">
+      <Filter>Source Files\aruco</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -161,22 +167,28 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="test_arduino.h">
-      <Filter>Source Files\main</Filter>
+      <Filter>Source Files\mains</Filter>
     </ClInclude>
     <ClInclude Include="AISheep.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="simulator.h">
-      <Filter>Source Files\main</Filter>
+      <Filter>Source Files\mains</Filter>
     </ClInclude>
     <ClInclude Include="mqtt_receiver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="car.h">
-      <Filter>Source Files\main</Filter>
+      <Filter>Source Files\mains</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ClassDiagram.cd" />
+    <ClInclude Include="pugiconfig.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pugixml.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="main.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

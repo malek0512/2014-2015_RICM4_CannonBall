@@ -1,5 +1,6 @@
 #include "AccelerometerSensor.h"
 
+//The lines in comments are for compatible problems with the Ensimag project. The tablet we used doesn't have the same requirements
 
 AccelerometerSensor::AccelerometerSensor() : _accelerometer(Accelerometer::GetDefault())
 {
